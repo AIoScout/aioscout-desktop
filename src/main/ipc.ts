@@ -3,7 +3,7 @@
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
-import { IPC, PageId, Rect, ServiceId, AppSettings, ModelMeta } from '../shared/types';
+import { IPC, PageId, Rect, ServiceId, AppSettings } from '../shared/types';
 import { AppPaths } from './paths';
 import { MixlyService } from './services/mixly';
 import { TrainingService } from './services/training';

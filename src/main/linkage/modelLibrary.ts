@@ -87,9 +87,11 @@ export class ModelLibrary extends EventEmitter {
     const finalId = path.basename(dir);
     fs.mkdirSync(dir, { recursive: true });
     fs.copyFileSync(tflitePath, path.join(dir, 'model.tflite'));
-    const labels = labelsPath && fs.existsSync(labelsPath)
-      ? fs.copyFileSync(labelsPath, path.join(dir, 'labels.txt')) || readMetaLineLabels(dir)
-      : [];
+    let labels: string[] = [];
+    if (labelsPath && fs.existsSync(labelsPath)) {
+      fs.copyFileSync(labelsPath, path.join(dir, 'labels.txt'));
+      labels = readMetaLineLabels(dir);
+    }
     const meta: ModelMeta = {
       id: finalId,
       name: name || finalId,

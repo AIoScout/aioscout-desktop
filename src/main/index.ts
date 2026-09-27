@@ -16,6 +16,7 @@ import { TrainingService } from './services/training';
 import { registerIpc } from './ipc';
 import { ModelLibrary } from './linkage/modelLibrary';
 import { ExportWatcher } from './linkage/exportWatcher';
+import { ArduinoToolchain } from './arduinoCli';
 
 let paths: AppPaths | null = null;
 let windows: WindowManager | null = null;
@@ -126,8 +127,6 @@ function boot(): void {
   models = new ModelLibrary(paths.modelsDir);
   const outboxDir = path.join(paths.trainingDataDir, 'blockcoding_outbox');
   exportWatcher = new ExportWatcher(outboxDir, (dir) => {
-    // Derive a display name: <parent-of-run> timestamp is opaque; use the
-    // number of classes + date instead — the user can rename in the toast.
     const name = `Model ${new Date().toLocaleString()}`;
     models!.import(
       path.join(dir, 'model.tflite'),
@@ -167,11 +166,6 @@ function boot(): void {
     }
   });
 
-  mixly.start();
-  if (settings.trainingStartMode === 'eager') {
-    training.start();
-  }
-
   // If the user is sitting on the training tab while its backend boots,
   // attach the view the moment it becomes ready.
   training.on('ready', (port: number) => {
@@ -190,6 +184,22 @@ function boot(): void {
     await Promise.allSettled([mixly?.close(), training?.close()]);
     app.exit(0);
   });
+
+  void startServices();
+}
+
+async function startServices(): Promise<void> {
+  if (!paths || !mixly || !training) return;
+  // Bundled Arduino toolchain (packaged builds): seed userData/Arduino15 on
+  // first run, then point the mixly server's arduino-cli at it. Dev builds
+  // use the user's own arduino-cli + default data dir.
+  const toolchain = new ArduinoToolchain(paths);
+  paths.arduinoDataDir = await toolchain.ensure();
+
+  mixly.start();
+  if (settings?.trainingStartMode === 'eager') {
+    training.start();
+  }
 }
 
 app.whenReady().then(boot);

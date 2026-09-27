@@ -28,6 +28,8 @@ export interface AppPaths {
   trainingDataDir: string;
   logsDir: string;
   modelsDir: string;
+  /** ARDUINO_DIRECTORIES_DATA for the mixly server (set after toolchain seeding). */
+  arduinoDataDir: string | null;
 }
 
 function readDevConfig(): DevConfig {
@@ -63,7 +65,8 @@ export function resolvePaths(): AppPaths {
     mixlyDataDir: path.join(dataDir, 'mixly-data'),
     trainingDataDir: path.join(dataDir, 'training-data'),
     logsDir: path.join(dataDir, 'logs'),
-    modelsDir: path.join(dataDir, 'models')
+    modelsDir: path.join(dataDir, 'models'),
+    arduinoDataDir: null
   };
 
   if (app.isPackaged) {
