@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC, AppSettings, PageId, Rect, ServiceId, ServiceStatus, TrainingProgress } from '../shared/types';
+import { IPC, AppSettings, PageId, Rect, ServiceId, ServiceStatus, TrainingProgress, ModelMeta, ModelChangeEvent } from '../shared/types';
 
 const api = {
   services: {
@@ -34,6 +34,20 @@ const api = {
       return ipcRenderer.invoke(IPC.AppQuit);
     }
   },
+  models: {
+    list(): Promise<ModelMeta[]> {
+      return ipcRenderer.invoke(IPC.ModelsList);
+    },
+    rename(id: string, name: string): Promise<ModelMeta | null> {
+      return ipcRenderer.invoke(IPC.ModelsRename, id, name);
+    },
+    remove(id: string): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.ModelsDelete, id);
+    },
+    importFile(): Promise<ModelMeta | null> {
+      return ipcRenderer.invoke(IPC.ModelsImportFile);
+    }
+  },
   on: {
     servicesStatusChanged(cb: (status: ServiceStatus) => void): () => void {
       const listener = (_e: unknown, v: ServiceStatus) => cb(v);
@@ -44,6 +58,11 @@ const api = {
       const listener = (_e: unknown, v: TrainingProgress) => cb(v);
       ipcRenderer.on(IPC.TrainingProgress, listener);
       return () => ipcRenderer.removeListener(IPC.TrainingProgress, listener);
+    },
+    modelsChanged(cb: (e: ModelChangeEvent) => void): () => void {
+      const listener = (_e: unknown, v: ModelChangeEvent) => cb(v);
+      ipcRenderer.on(IPC.ModelsChanged, listener);
+      return () => ipcRenderer.removeListener(IPC.ModelsChanged, listener);
     }
   }
 };

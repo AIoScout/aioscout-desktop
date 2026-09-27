@@ -104,10 +104,22 @@ export function resolvePaths(): AppPaths {
   return paths;
 }
 
-/** Board editor URL that skips Mixly's home view (boardIndex is load-bearing). */
+/**
+ * Board editor URL that skips Mixly's home view. Mirrors exactly what the home
+ * page generates (board-manager.js + Url.jsonToUrl): values are
+ * percent-ENCODED — raw slashes in the query corrupt Mixly's web path shim,
+ * which derives Env.indexDirPath from location.href — and boardIndex is
+ * relative to the site root (prefixed with boards/).
+ */
 export function boardEditorUrl(port: number): string {
-  return (
-    `http://127.0.0.1:${port}/boards/index.html` +
-    `?boardIndex=./boards/default/arduino_esp32/index.xml&boardType=Arduino%20ESP32`
-  );
+  const params = [
+    ['thirdPartyBoard', 'false'],
+    ['boardIndex', 'boards/default/arduino_esp32/index.xml'],
+    ['boardType', 'Arduino ESP32'],
+    ['boardImg', './boards/default/arduino_esp32/media/esp32_compressed.png'],
+    ['language', 'C/C++']
+  ]
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+  return `http://127.0.0.1:${port}/boards/index.html?${params}`;
 }

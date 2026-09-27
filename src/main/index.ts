@@ -14,12 +14,16 @@ import { WindowManager } from './windowManager';
 import { MixlyService } from './services/mixly';
 import { TrainingService } from './services/training';
 import { registerIpc } from './ipc';
+import { ModelLibrary } from './linkage/modelLibrary';
+import { ExportWatcher } from './linkage/exportWatcher';
 
 let paths: AppPaths | null = null;
 let windows: WindowManager | null = null;
 let settings: AppSettings | null = null;
 let mixly: MixlyService | null = null;
 let training: TrainingService | null = null;
+let models: ModelLibrary | null = null;
+let exportWatcher: ExportWatcher | null = null;
 let quitting = false;
 
 function buildMenu(): void {
@@ -118,10 +122,27 @@ function boot(): void {
   mixly = new MixlyService(paths);
   training = new TrainingService(paths);
 
+  // Model linkage: watch the training app's outbox, import into the library.
+  models = new ModelLibrary(paths.modelsDir);
+  const outboxDir = path.join(paths.trainingDataDir, 'blockcoding_outbox');
+  exportWatcher = new ExportWatcher(outboxDir, (dir) => {
+    // Derive a display name: <parent-of-run> timestamp is opaque; use the
+    // number of classes + date instead — the user can rename in the toast.
+    const name = `Model ${new Date().toLocaleString()}`;
+    models!.import(
+      path.join(dir, 'model.tflite'),
+      path.join(dir, 'labels.txt'),
+      name,
+      'training'
+    );
+  });
+  exportWatcher.start();
+
   registerIpc({
     paths,
     mixly,
     training,
+    models,
     getWindow: () => windows?.main ?? null,
     showPage,
     setContentBounds: (rect) => windows?.setContentBounds(rect)
@@ -165,6 +186,7 @@ function boot(): void {
     quitting = true;
     e.preventDefault();
     windows?.destroyAll();
+    exportWatcher?.stop();
     await Promise.allSettled([mixly?.close(), training?.close()]);
     app.exit(0);
   });

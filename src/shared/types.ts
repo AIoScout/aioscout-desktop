@@ -46,6 +46,20 @@ export interface Rect {
   height: number;
 }
 
+export interface ModelMeta {
+  id: string;
+  name: string;
+  createdAt: number;
+  labels: string[];
+  sizeBytes: number;
+  source: 'training' | 'file';
+}
+
+export interface ModelChangeEvent {
+  event: 'added' | 'renamed' | 'removed';
+  model: ModelMeta;
+}
+
 export const IPC = {
   // renderer -> main (invoke)
   ServicesGetStatus: 'services:getStatus',
@@ -56,8 +70,13 @@ export const IPC = {
   SettingsSet: 'settings:set',
   AppOpenLogs: 'app:openLogs',
   AppQuit: 'app:quit',
+  ModelsList: 'models:list',
+  ModelsRename: 'models:rename',
+  ModelsDelete: 'models:delete',
+  ModelsImportFile: 'models:importFile',
   // main -> renderer (send)
   ServicesStatusChanged: 'services:statusChanged',
   TrainingProgress: 'training:progress',
-  ActivePageChanged: 'nav:activePageChanged'
+  ActivePageChanged: 'nav:activePageChanged',
+  ModelsChanged: 'models:changed'
 } as const;

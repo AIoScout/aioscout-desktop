@@ -91,6 +91,43 @@ document.getElementById('btn-open-logs').addEventListener('click', () => {
   window.aioscout.app.openLogs();
 });
 
+// ── Model toast ──────────────────────────────────────────────
+const toastEl = document.getElementById('model-toast');
+const toastName = document.getElementById('model-name-input');
+let toastModelId = null;
+
+document.getElementById('btn-model-save').addEventListener('click', async () => {
+  if (toastModelId) {
+    const name = toastName.value.trim();
+    if (name) await window.aioscout.models.rename(toastModelId, name);
+  }
+  hideToast();
+});
+
+document.getElementById('btn-model-discard').addEventListener('click', async () => {
+  if (toastModelId) await window.aioscout.models.remove(toastModelId);
+  hideToast();
+});
+
+document.getElementById('btn-model-open-coding').addEventListener('click', async () => {
+  const name = toastName.value.trim();
+  if (toastModelId && name) await window.aioscout.models.rename(toastModelId, name);
+  hideToast();
+  switchPage('coding');
+});
+
+function hideToast() {
+  toastModelId = null;
+  toastEl.hidden = true;
+}
+
+window.aioscout.on.modelsChanged((e) => {
+  if (e.event !== 'added') return;
+  toastModelId = e.model.id;
+  toastName.value = e.model.name;
+  toastEl.hidden = false;
+});
+
 // ── Bounds reporting ─────────────────────────────────────────
 // The subpage WebContentsView is positioned exactly over #subpage-host.
 function reportBounds() {

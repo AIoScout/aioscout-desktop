@@ -1,16 +1,20 @@
 // IPC surface between the shell renderer and the main process.
 
-import { BrowserWindow, ipcMain, shell } from 'electron';
-import { IPC, PageId, Rect, ServiceId, AppSettings } from '../shared/types';
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import fs from 'node:fs';
+import path from 'node:path';
+import { IPC, PageId, Rect, ServiceId, AppSettings, ModelMeta } from '../shared/types';
 import { AppPaths } from './paths';
 import { MixlyService } from './services/mixly';
 import { TrainingService } from './services/training';
+import { ModelLibrary } from './linkage/modelLibrary';
 import { loadSettings, saveSettings } from './settings';
 
 interface IpcDeps {
   paths: AppPaths;
   mixly: MixlyService;
   training: TrainingService;
+  models: ModelLibrary;
   getWindow: () => BrowserWindow | null;
   showPage: (page: PageId) => void;
   setContentBounds: (rect: Rect) => void;
@@ -55,6 +59,36 @@ export function registerIpc(deps: IpcDeps): void {
     return true;
   });
 
+  ipcMain.handle(IPC.ModelsList, () => deps.models.list());
+
+  ipcMain.handle(IPC.ModelsRename, (_e, id: string, name: string) =>
+    deps.models.rename(id, name)
+  );
+
+  ipcMain.handle(IPC.ModelsDelete, (_e, id: string) => deps.models.delete(id));
+
+  ipcMain.handle(IPC.ModelsImportFile, async () => {
+    const win = deps.getWindow();
+    const picked = await dialog.showOpenDialog(win!, {
+      title: 'Import a TFLite model',
+      filters: [
+        { name: 'TFLite model', extensions: ['tflite'] },
+        { name: 'All files', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    });
+    if (picked.canceled || !picked.filePaths[0]) return null;
+    const tflite = picked.filePaths[0];
+    const labels = tflite.replace(/\.tflite$/i, '') + '.txt';
+    const name = path.basename(tflite).replace(/\.tflite$/i, '');
+    return deps.models.import(
+      tflite,
+      fs.existsSync(labels) ? labels : null,
+      name,
+      'file'
+    );
+  });
+
   ipcMain.handle(IPC.AppQuit, () => {
     const win = deps.getWindow();
     if (win) win.close();
@@ -68,4 +102,5 @@ export function registerIpc(deps: IpcDeps): void {
   deps.training.on('progress', (progress: unknown) =>
     broadcast(IPC.TrainingProgress, progress)
   );
+  deps.models.on('changed', (change: unknown) => broadcast(IPC.ModelsChanged, change));
 }

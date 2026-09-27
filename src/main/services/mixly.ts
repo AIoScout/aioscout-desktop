@@ -34,7 +34,8 @@ export class MixlyService extends BaseService {
         AIOSCOUT_RESOURCE_DIR: this.paths.mixlyDir,
         AIOSCOUT_DATA_DIR: this.paths.mixlyDataDir,
         ARDUINO_CLI: this.paths.arduinoCli ?? 'arduino-cli',
-        P4_IMX219_LIB: path.join(this.paths.mixlyDir, 'ESP32-P4-IMX219-PoC')
+        P4_IMX219_LIB: path.join(this.paths.mixlyDir, 'ESP32-P4-IMX219-PoC'),
+        AIOSCOUT_MODEL_LIBRARY: this.paths.modelsDir
       },
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       cwd: this.paths.mixlyDir
