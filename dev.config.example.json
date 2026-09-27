@@ -1,0 +1,6 @@
+{
+  "mixlyDir": "../mixly_lite",
+  "trainingDir": "../Google-Teachable-Machine-TFLite-model-training/AItraining",
+  "trainingPython": "../Google-Teachable-Machine-TFLite-model-training/AItraining/.venv/bin/python",
+  "arduinoCli": "arduino-cli"
+}

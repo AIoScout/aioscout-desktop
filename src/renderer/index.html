@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    />
+    <title>AIoScout</title>
+    <link rel="stylesheet" href="./shell.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wordmark">AIoScout</div>
+      <nav class="nav" id="nav">
+        <button class="nav-link" id="nav-training" data-page="training">AI Training</button>
+        <button class="nav-link" id="nav-coding" data-page="coding">Block Coding</button>
+      </nav>
+      <div class="status-cluster" id="status-cluster">
+        <div class="status-chip" id="chip-training" title="AI training engine">
+          <span class="eyebrow">Training engine</span>
+          <span class="status-line"><span class="dot"></span><span class="status-text">…</span></span>
+        </div>
+        <div class="status-chip" id="chip-mixly" title="Block coding compile service">
+          <span class="eyebrow">Compile service</span>
+          <span class="status-line"><span class="dot"></span><span class="status-text">…</span></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- The subpage WebContentsViews attach exactly over this element. -->
+    <main class="content" id="subpage-host">
+      <section class="panel" id="panel-training" hidden>
+        <div class="eyebrow">AI training engine</div>
+        <h1 class="panel-title">Preparing the training workspace</h1>
+        <div class="progress-track"><div class="progress-bar"></div></div>
+        <p class="panel-body" id="training-phase-copy">Starting…</p>
+        <p class="panel-note" id="training-camera-note">
+          macOS will ask for camera permission the first time you capture images.
+        </p>
+        <div class="panel-actions" id="training-actions" hidden>
+          <button class="btn-primary" id="btn-retry-training">Retry</button>
+          <button class="btn-outline" id="btn-open-logs">Show logs</button>
+        </div>
+      </section>
+      <section class="panel" id="panel-coding" hidden>
+        <div class="eyebrow">Compile service</div>
+        <h1 class="panel-title">Starting the block coding editor</h1>
+        <div class="progress-track"><div class="progress-bar"></div></div>
+        <p class="panel-body" id="coding-phase-copy">Starting…</p>
+      </section>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

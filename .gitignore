@@ -1,0 +1,7 @@
+node_modules/
+out/
+dist/
+resources/
+dev.config.json
+.DS_Store
+*.log

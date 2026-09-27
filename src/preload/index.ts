@@ -1,0 +1,53 @@
+import { contextBridge, ipcRenderer } from 'electron';
+import { IPC, AppSettings, PageId, Rect, ServiceId, ServiceStatus, TrainingProgress } from '../shared/types';
+
+const api = {
+  services: {
+    getStatus(): Promise<{ mixly: ServiceStatus; training: ServiceStatus }> {
+      return ipcRenderer.invoke(IPC.ServicesGetStatus);
+    },
+    restart(id: ServiceId): Promise<ServiceStatus> {
+      return ipcRenderer.invoke(IPC.ServicesRestart, id);
+    }
+  },
+  nav: {
+    show(page: PageId): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.NavShow, page);
+    },
+    setContentBounds(rect: Rect): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.NavSetContentBounds, rect);
+    }
+  },
+  settings: {
+    get(): Promise<AppSettings> {
+      return ipcRenderer.invoke(IPC.SettingsGet);
+    },
+    set(patch: Partial<AppSettings>): Promise<AppSettings> {
+      return ipcRenderer.invoke(IPC.SettingsSet, patch);
+    }
+  },
+  app: {
+    openLogs(): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.AppOpenLogs);
+    },
+    quit(): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.AppQuit);
+    }
+  },
+  on: {
+    servicesStatusChanged(cb: (status: ServiceStatus) => void): () => void {
+      const listener = (_e: unknown, v: ServiceStatus) => cb(v);
+      ipcRenderer.on(IPC.ServicesStatusChanged, listener);
+      return () => ipcRenderer.removeListener(IPC.ServicesStatusChanged, listener);
+    },
+    trainingProgress(cb: (p: TrainingProgress) => void): () => void {
+      const listener = (_e: unknown, v: TrainingProgress) => cb(v);
+      ipcRenderer.on(IPC.TrainingProgress, listener);
+      return () => ipcRenderer.removeListener(IPC.TrainingProgress, listener);
+    }
+  }
+};
+
+contextBridge.exposeInMainWorld('aioscout', api);
+
+export type AioscoutApi = typeof api;

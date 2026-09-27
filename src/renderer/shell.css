@@ -1,0 +1,261 @@
+/* AIoScout shell — design tokens per design-guideline/DESIGN.md:
+   ink #1a1c1c, body #525252, mute #78716c, hairline #d8d9d8,
+   canvas #ffffff / soft #f9f9f8, accent-orange #f58331 (highlight only),
+   accent-purple #5b5ba8 (technical eyebrow labels only), Inter,
+   0px radius everywhere, no shadows, 8px spacing scale. */
+
+:root {
+  --ink: #1a1c1c;
+  --black: #000000;
+  --body: #525252;
+  --mute: #78716c;
+  --hairline: #d8d9d8;
+  --canvas: #ffffff;
+  --canvas-soft: #f9f9f8;
+  --accent-orange: #f58331;
+  --accent-purple: #5b5ba8;
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-6: 48px;
+}
+
+* {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--canvas-soft);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Top bar ─────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: 0 var(--sp-3);
+  height: 56px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--hairline);
+  flex: none;
+}
+
+.wordmark {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  gap: var(--sp-2);
+  height: 100%;
+}
+
+.nav-link {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 var(--sp-1);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  color: var(--ink);
+}
+
+.nav-link.active {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+/* ── Status cluster ──────────────────────────────────────── */
+.status-cluster {
+  margin-left: auto;
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.status-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 132px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-purple);
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--body);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  background: var(--hairline);
+}
+
+.status-chip[data-state='starting'] .dot,
+.status-chip[data-state='restarting'] .dot {
+  background: var(--accent-orange);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.status-chip[data-state='ready'] .dot {
+  background: var(--ink);
+}
+
+.status-chip[data-state='failed'] .dot {
+  background: var(--accent-orange);
+}
+
+.status-chip[data-state='failed'] .status-text {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ── Content / subpage host ──────────────────────────────── */
+.content {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* The WebContentsView covers this element; panels only show beneath it
+   while the backend for the active page is still booting. */
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-6);
+  text-align: center;
+  background: var(--canvas-soft);
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.panel-body {
+  margin: 0;
+  max-width: 420px;
+  color: var(--body);
+}
+
+.panel-note {
+  margin: var(--sp-1) 0 0;
+  max-width: 420px;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.progress-track {
+  width: 240px;
+  height: 2px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 40%;
+  height: 100%;
+  background: var(--accent-orange);
+  animation: slide 1.6s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.panel-actions {
+  display: flex;
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-primary,
+.btn-outline {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px var(--sp-3);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--canvas);
+  border: 1px solid var(--ink);
+}
+
+.btn-primary:hover {
+  background: var(--black);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+
+.btn-outline:hover {
+  background: var(--canvas);
+}

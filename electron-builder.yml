@@ -1,0 +1,23 @@
+# Packaging config — sidecar resources are assembled by scripts/ in Phase 7.
+appId: edu.aioscout.app
+productName: AIoScout
+directories:
+  output: dist
+files:
+  - out/**
+  - package.json
+extraResources: []
+mac:
+  category: public.app-category.education
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  entitlements: build/entitlements.mac.plist
+  hardenedRuntime: true
+  extendInfo:
+    NSCameraUsageDescription: AIoScout captures camera images to collect training data for your AI model.
+win:
+  target: nsis
+nsis:
+  oneClick: true
+  perMachine: true
