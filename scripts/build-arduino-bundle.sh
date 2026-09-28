@@ -16,7 +16,12 @@ OUT="$ROOT/resources/Arduino15-seed"
 case "$(uname -s)/$(uname -m)" in
   Darwin/arm64) plat=darwin; arch=arm64 ;;
   Darwin/x86_64) plat=darwin; arch=x64 ;;
-  MINGW*/AMD64|CYGWIN*/AMD64) plat=win32; arch=x64 ;;
+  MINGW*/*|MSYS*/*|CYGWIN*/*)
+    case "$(uname -m)" in
+      x86_64|AMD64) arch=x64 ;;
+      *) echo "unsupported windows arch: $(uname -m)"; exit 1 ;;
+    esac
+    plat=win32 ;;
   *) echo "unsupported platform: $(uname -s)/$(uname -m)"; exit 1 ;;
 esac
 
@@ -32,9 +37,13 @@ mkdir -p "$dest/Arduino15"
 
 # arduino-cli 1.x has no --config flag; directory overrides come via env vars.
 # Downloads (the ~1GB tarball cache) go OUTSIDE the seed so installers don't
-# ship them, and are removed afterwards.
-export ARDUINO_DIRECTORIES_DATA="$dest/Arduino15"
-export ARDUINO_DIRECTORIES_DOWNLOADS="$dest/downloads"
+# ship them, and are removed afterwards. On git-bash, convert to Windows
+# paths explicitly — don't rely on MSYS auto-conversion of env vars.
+to_native() {
+  if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else printf '%s' "$1"; fi
+}
+export ARDUINO_DIRECTORIES_DATA="$(to_native "$dest/Arduino15")"
+export ARDUINO_DIRECTORIES_DOWNLOADS="$(to_native "$dest/downloads")"
 rm -rf "$dest/downloads"
 
 "$cli" core update-index
