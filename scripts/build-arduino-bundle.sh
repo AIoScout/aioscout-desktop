@@ -90,10 +90,11 @@ du -sh "$dest/Arduino15"
 # ── Verify: compile a representative sketch for BOTH boards ───────────────
 echo "==> verification compiles (S3 + P4)"
 VERIF="$(mktemp -d)"
-mkdir -p "$VERIF/sketch" "$VERIF/libraries"
+mkdir -p "$VERIF/verify" "$VERIF/libraries"
 cp -R "$MIXLY_DIR/SmartCar" "$VERIF/libraries/SmartCar"
 cp -R "$MIXLY_DIR/Mixly_TFLite" "$VERIF/libraries/Mixly_TFLite"
-cat > "$VERIF/sketch/verify.ino" <<'EOF'
+# NB: arduino-cli requires the .ino filename to match its parent dir name.
+cat > "$VERIF/verify/verify.ino" <<'EOF'
 #include <SmartCar.h>
 #include <Mixly_TFLite.h>
 void setup() {
@@ -110,7 +111,7 @@ void loop() {
   Movement::Stop();
 }
 EOF
-"$cli" compile -b esp32:esp32:esp32s3 --libraries "$VERIF/libraries" "$VERIF/sketch" --build-path "$VERIF/build-s3"
-"$cli" compile -b esp32:esp32:esp32p4 --libraries "$VERIF/libraries" "$VERIF/sketch" --build-path "$VERIF/build-p4"
+"$cli" compile -b esp32:esp32:esp32s3 --libraries "$VERIF/libraries" "$VERIF/verify" --build-path "$VERIF/build-s3"
+"$cli" compile -b esp32:esp32:esp32p4 --libraries "$VERIF/libraries" "$VERIF/verify" --build-path "$VERIF/build-p4"
 rm -rf "$VERIF"
 echo "==> seed verified"
