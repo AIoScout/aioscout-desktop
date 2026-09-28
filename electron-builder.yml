@@ -6,12 +6,24 @@ directories:
 files:
   - out/**
   - package.json
-extraResources: []
+extraResources:
+  # Populated by scripts/prepare-sidecars.sh + fetch-arduino-cli.sh +
+  # build-arduino-bundle.sh — run those before electron-builder.
+  - from: resources/mixly
+    to: mixly
+  - from: resources/training
+    to: training
+  - from: resources/arduino-cli
+    to: arduino-cli
+  - from: resources/Arduino15-seed
+    to: Arduino15-seed
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
 mac:
   category: public.app-category.education
-  target:
-    - target: dmg
-      arch: [arm64, x64]
+  identity: null  # unsigned distribution (see README)
+  # Builds the runner's native arch — the arm64 and x64 dmg artifacts come
+  # from the separate CI matrix entries (the sidecars are per-arch).
+  target: dmg
   entitlements: build/entitlements.mac.plist
   hardenedRuntime: true
   extendInfo:

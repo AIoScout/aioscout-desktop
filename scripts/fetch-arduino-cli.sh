@@ -28,12 +28,10 @@ for target in "${TARGETS[@]}"; do
   echo "==> fetching $url"
   tmp="$(mktemp -d)"
   curl -fSL --retry 3 -o "$tmp/cli.$ext" "$url"
-  case "$ext" in
-    tar.gz) tar -xzf "$tmp/cli.$ext" -C "$tmp" "$exe" ;;
-    zip)    (cd "$tmp" && unzip -q -o "cli.$ext" "$exe" 2>/dev/null || unzip -q -o "cli.$ext") ;;
-  esac
+  # bsdtar (macOS and Windows both ship it) auto-detects zip and tar.gz
+  tar -xf "$tmp/cli.$ext" -C "$tmp"
   mv "$tmp/$exe" "$dest/$exe"
-  chmod +x "$dest/$exe"
+  chmod +x "$dest/$exe" 2>/dev/null || true
   rm -rf "$tmp"
 done
 

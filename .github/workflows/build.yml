@@ -1,0 +1,154 @@
+# Build distributable AIoScout installers (unsigned) for all three targets:
+#   macos-latest (Apple Silicon)  → AIoScout-<ver>-mac-arm64.dmg
+#   macos-15-intel (Intel)        → AIoScout-<ver>-mac-x64.dmg
+#   windows-latest                → AIoScout-<ver>-win-x64.exe
+#
+# Triggers:
+#   • workflow_dispatch — manual build, artifacts downloadable from the run page
+#   • pushing a v* tag   — artifacts also attached to a GitHub Release
+#
+# Prerequisites (one-time):
+#   • Push the sibling repos' branches referenced in the env block below.
+#   • If any of the three repos are PRIVATE, create a fine-grained PAT with
+#     "Contents: Read" over them and add it as the secret REPO_ACCESS_TOKEN.
+#     (Public repos need no token.)
+#
+# Quota note: macOS runners bill at 10x minutes on private repos. The heavy
+# downloads (arduino-cli, the ~2GB ESP32 toolchain seed) are cached; a warm
+# run is ~15-25 min per platform.
+
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+# Branch/commit refs for the sibling repos at build time. Update these when
+# the feature branches merge into their mainlines.
+env:
+  MIXLY_REPO: AIoScout/mixly_lite
+  MIXLY_REF: feat/tflite-model-v2
+  AITRAINING_REPO: koilkl/Aitraining
+  AITRAINING_REF: fix/orphan-streamlit-timeout
+  ARDUINO_CLI_VERSION: '1.4.1'
+  ESP32_CORE_VERSION: '3.3.0'
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: mac-arm64
+            os: macos-latest        # Apple Silicon
+            builder-target: --mac
+          - name: mac-x64
+            os: macos-15-intel       # Intel; available until ~Aug 2027
+            builder-target: --mac
+          - name: win-x64
+            os: windows-latest
+            builder-target: --win
+
+    permissions:
+      contents: write  # attaching release assets on tag builds
+
+    steps:
+      - name: Checkout aioscout-desktop
+        uses: actions/checkout@v4
+        with:
+          path: aioscout-desktop
+
+      - name: Checkout mixly_lite
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.MIXLY_REPO }}
+          ref: ${{ env.MIXLY_REF }}
+          path: mixly_lite
+          token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+
+      - name: Checkout AItraining
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.AITRAINING_REPO }}
+          ref: ${{ env.AITRAINING_REF }}
+          path: AItraining
+          token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache arduino-cli bundle
+        uses: actions/cache@v4
+        with:
+          path: aioscout-desktop/resources/arduino-cli
+          key: arduino-cli-${{ env.ARDUINO_CLI_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Cache Arduino15 toolchain seed
+        uses: actions/cache@v4
+        with:
+          path: aioscout-desktop/resources/Arduino15-seed
+          key: arduino15-esp32-${{ env.ESP32_CORE_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Install app dependencies
+        working-directory: aioscout-desktop
+        run: |
+          npm ci --no-audit --no-fund
+          npm approve-scripts --allow-scripts-pending || true
+
+      - name: Build AI training backend (PyInstaller)
+        working-directory: AItraining
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          python -m PyInstaller --clean --noconfirm TFLiteTraining.spec
+
+      - name: Prepare sidecar resources
+        working-directory: aioscout-desktop
+        shell: bash
+        run: bash scripts/prepare-sidecars.sh ../mixly_lite ../AItraining
+
+      - name: Fetch bundled arduino-cli
+        working-directory: aioscout-desktop
+        shell: bash
+        run: bash scripts/fetch-arduino-cli.sh
+
+      - name: Build Arduino toolchain seed (offline compile support)
+        working-directory: aioscout-desktop
+        shell: bash
+        run: bash scripts/build-arduino-bundle.sh
+
+      - name: Package installer
+        working-directory: aioscout-desktop
+        shell: bash
+        env:
+          # Unsigned distribution — never pick up runner keychain identities.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npx electron-vite build
+          npx electron-builder ${{ matrix.builder-target }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIoScout-${{ matrix.name }}
+          path: |
+            aioscout-desktop/dist/*.dmg
+            aioscout-desktop/dist/*.exe
+          if-no-files-found: error
+
+      - name: Attach to release (tag builds only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            aioscout-desktop/dist/*.dmg
+            aioscout-desktop/dist/*.exe
