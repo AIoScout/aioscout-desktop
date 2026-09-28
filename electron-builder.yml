@@ -19,7 +19,10 @@ extraResources:
     to: arduino-cli
   - from: resources/Arduino15-seed
     to: Arduino15-seed
-artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+# Versionless artifact names: enables permanent "always latest" links like
+#   https://github.com/AIoScout/aioscout-desktop/releases/latest/download/AIoScout-mac-arm64.dmg
+# (the version is visible in the app itself and on the release page).
+artifactName: ${productName}-${os}-${arch}.${ext}
 mac:
   category: public.app-category.education
   identity: null  # unsigned distribution (see README)
