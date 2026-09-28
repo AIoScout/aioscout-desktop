@@ -28,8 +28,16 @@ for target in "${TARGETS[@]}"; do
   echo "==> fetching $url"
   tmp="$(mktemp -d)"
   curl -fSL --retry 3 -o "$tmp/cli.$ext" "$url"
-  # bsdtar (macOS and Windows both ship it) auto-detects zip and tar.gz
-  tar -xf "$tmp/cli.$ext" -C "$tmp"
+  if [ "$ext" = "tar.gz" ]; then
+    tar -xzf "$tmp/cli.$ext" -C "$tmp"
+  else
+    # git-bash's tar is GNU tar (cannot read zip); Windows' own bsdtar can.
+    if [ -x /c/Windows/System32/tar.exe ]; then
+      /c/Windows/System32/tar.exe -xf "$tmp/cli.$ext" -C "$tmp"
+    else
+      unzip -q -o "$tmp/cli.$ext" -d "$tmp"
+    fi
+  fi
   mv "$tmp/$exe" "$dest/$exe"
   chmod +x "$dest/$exe" 2>/dev/null || true
   rm -rf "$tmp"

@@ -134,7 +134,9 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: |
           npx electron-vite build
-          npx electron-builder ${{ matrix.builder-target }}
+          # --publish never: releases are attached by softprops below, not by
+          # electron-builder (which aborts without GH_TOKEN on CI).
+          npx electron-builder ${{ matrix.builder-target }} --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
