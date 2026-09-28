@@ -30,14 +30,18 @@ echo "==> seeding Arduino15 for $plat/$arch at $dest"
 rm -rf "$dest"
 mkdir -p "$dest/Arduino15"
 
-"$cli" \
-  --config "directories.data=$dest/Arduino15" \
-  core update-index
-"$cli" \
-  --config "directories.data=$dest/Arduino15" \
-  core install "esp32:esp32@$VERSION"
+# arduino-cli 1.x has no --config flag; directory overrides come via env vars.
+# Downloads (the ~1GB tarball cache) go OUTSIDE the seed so installers don't
+# ship them, and are removed afterwards.
+export ARDUINO_DIRECTORIES_DATA="$dest/Arduino15"
+export ARDUINO_DIRECTORIES_DOWNLOADS="$dest/downloads"
+rm -rf "$dest/downloads"
+
+"$cli" core update-index
+"$cli" core install "esp32:esp32@$VERSION"
+rm -rf "$dest/downloads"
 
 echo "==> verifying S3 compile capability"
-"$cli" --config "directories.data=$dest/Arduino15" core list
+"$cli" core list
 
 du -sh "$dest/Arduino15"
