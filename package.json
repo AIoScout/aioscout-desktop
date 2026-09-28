@@ -5,7 +5,7 @@
   "description": "AIoScout — unified desktop app for AI model training and block coding on the AIoScout smart car",
   "main": "out/main/index.js",
   "author": "AIoScout",
-  "license": "MIT",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",

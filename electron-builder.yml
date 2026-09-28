@@ -6,6 +6,8 @@ directories:
 files:
   - out/**
   - package.json
+  - LICENSE
+  - THIRD-PARTY-NOTICES.md
 extraResources:
   # Populated by scripts/prepare-sidecars.sh + fetch-arduino-cli.sh +
   # build-arduino-bundle.sh — run those before electron-builder.
