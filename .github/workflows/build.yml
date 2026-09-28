@@ -96,7 +96,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: aioscout-desktop/resources/Arduino15-seed
-          key: arduino15-esp32-${{ env.ESP32_CORE_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+          key: arduino15-esp32-${{ env.ESP32_CORE_VERSION }}-s3p4-1-${{ runner.os }}-${{ runner.arch }}
 
       - name: Install app dependencies
         working-directory: aioscout-desktop

@@ -4,7 +4,11 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { AppPaths } from './paths';
+
+const execFileAsync = promisify(execFile);
 
 export class ArduinoToolchain {
   constructor(private readonly paths: AppPaths) {}
@@ -21,10 +25,40 @@ export class ArduinoToolchain {
   }
 
   /**
+   * The bundled toolchain's ctags binary is x86_64-only (upstream Arduino
+   * ships no arm64 build), so Apple Silicon needs Rosetta 2 to compile.
+   * Install it if missing (Apple's official installer; runs without sudo,
+   * needs network — most Macs already have it).
+   */
+  private async ensureRosetta(): Promise<void> {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    try {
+      await execFileAsync('arch', ['-x86_64', '/usr/bin/true']);
+      return; // Rosetta present
+    } catch {
+      console.log('[arduino] Rosetta 2 missing — installing (about a minute)');
+    }
+    try {
+      await execFileAsync('softwareupdate', [
+        '--install-rosetta',
+        '--agree-to-license'
+      ]);
+      console.log('[arduino] Rosetta 2 installed');
+    } catch (e) {
+      console.error(
+        '[arduino] Rosetta 2 install failed (compiles will not work on this Mac):',
+        e instanceof Error ? e.message : e
+      );
+    }
+  }
+
+  /**
    * Ensure a usable ARDUINO_DIRECTORIES_DATA directory exists. Returns the
    * path (or null in dev, where the user's own arduino-cli install is used).
    */
   async ensure(): Promise<string | null> {
+    await this.ensureRosetta();
+
     if (this.paths.isDev) return null;
 
     const seed = this.seedDir;
