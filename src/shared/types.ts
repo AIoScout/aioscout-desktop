@@ -78,5 +78,6 @@ export const IPC = {
   ServicesStatusChanged: 'services:statusChanged',
   TrainingProgress: 'training:progress',
   ActivePageChanged: 'nav:activePageChanged',
-  ModelsChanged: 'models:changed'
+  ModelsChanged: 'models:changed',
+  ZoomChanged: 'zoom:changed'
 } as const;

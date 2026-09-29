@@ -63,6 +63,11 @@ const api = {
       const listener = (_e: unknown, v: ModelChangeEvent) => cb(v);
       ipcRenderer.on(IPC.ModelsChanged, listener);
       return () => ipcRenderer.removeListener(IPC.ModelsChanged, listener);
+    },
+    zoomChanged(cb: () => void): () => void {
+      const listener = () => cb();
+      ipcRenderer.on(IPC.ZoomChanged, listener);
+      return () => ipcRenderer.removeListener(IPC.ZoomChanged, listener);
     }
   }
 };

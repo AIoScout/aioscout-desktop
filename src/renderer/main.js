@@ -143,6 +143,9 @@ function reportBounds() {
 const observer = new ResizeObserver(reportBounds);
 observer.observe(els.host);
 window.addEventListener('resize', reportBounds);
+// The shell's CSS px change with app-wide zoom — re-report the rect so the
+// main process keeps the subpage view exactly over the content area.
+window.aioscout.on.zoomChanged(reportBounds);
 
 // ── Events from main ─────────────────────────────────────────
 window.aioscout.on.servicesStatusChanged((status) => {

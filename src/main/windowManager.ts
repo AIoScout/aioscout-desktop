@@ -113,9 +113,41 @@ export class WindowManager {
     if (other) this.main.contentView.removeChildView(other);
   }
 
-  /** Renderer reports the content-area rect (DIP) it reserved for subpages. */
+  /** Renderer reports the content-area rect (CSS px) it reserved for subpages.
+   * The shell may be zoomed — convert back to window DIP before applying. */
   setContentBounds(rect: Rect): void {
-    this.bounds = rect;
+    let f = 1;
+    try {
+      f = this.main.webContents.getZoomFactor() || 1;
+    } catch {
+      /* window gone */
+    }
+    this.bounds = {
+      x: rect.x / f,
+      y: rect.y / f,
+      width: rect.width / f,
+      height: rect.height / f
+    };
+    const active = this.active === 'coding' ? this.coding : this.training;
+    if (active) this.applyBounds(active);
+  }
+
+  /** Zoom the shell and both subpage views together (single canvas feel). */
+  setZoomFactorAll(factor: number): void {
+    const contents = [this.main.webContents, this.coding?.webContents, this.training?.webContents];
+    for (const wc of contents) {
+      try {
+        wc?.setZoomFactor(factor);
+      } catch {
+        /* view may be gone */
+      }
+    }
+    // Ask the shell to re-report its content rect (CSS px change with zoom).
+    try {
+      this.main.webContents.send('zoom:changed', factor);
+    } catch {
+      /* window gone */
+    }
     const active = this.active === 'coding' ? this.coding : this.training;
     if (active) this.applyBounds(active);
   }

@@ -28,6 +28,12 @@ let exportWatcher: ExportWatcher | null = null;
 let quitting = false;
 
 function buildMenu(): void {
+  const zoomStep = (delta: number) => {
+    if (!windows) return;
+    const current = windows.main.webContents.getZoomFactor();
+    const next = delta === 0 ? 1 : Math.min(3, Math.max(0.5, current + delta));
+    windows.setZoomFactorAll(next);
+  };
   const menu = Menu.buildFromTemplate([
     {
       label: app.name,
@@ -59,9 +65,23 @@ function buildMenu(): void {
         { role: 'forceReload' },
         { role: 'toggleDevTools' },
         { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
+        // Custom zoom: the role-based items only zoom the focused
+        // webContents; we scale the shell AND both subpage views together.
+        {
+          label: 'Zoom In',
+          accelerator: 'CommandOrControl+=',
+          click: () => zoomStep(0.1)
+        },
+        {
+          label: 'Zoom Out',
+          accelerator: 'CommandOrControl+-',
+          click: () => zoomStep(-0.1)
+        },
+        {
+          label: 'Actual Size',
+          accelerator: 'CommandOrControl+0',
+          click: () => zoomStep(0)
+        },
         { type: 'separator' },
         { role: 'togglefullscreen' }
       ]
