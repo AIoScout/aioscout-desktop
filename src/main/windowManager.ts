@@ -62,11 +62,14 @@ export class WindowManager {
     this.applyBounds(view);
     this.active = page;
 
-    // First-time load sequence. For the coding view we land on the server root
-    // first so we can pre-seed localStorage (language) on the right origin,
-    // then navigate to the board editor URL.
-    if (view.webContents.getURL() === '') {
-      const rootUrl = new URL(url).origin + '/';
+    // First-time load sequence, or the backend restarted on a new port —
+    // point the view at the requested URL. For the coding view we land on
+    // the server root first so we can pre-seed localStorage (language,
+    // theme) on the right origin, then navigate to the board editor URL.
+    const origin = new URL(url).origin;
+    const current = view.webContents.getURL();
+    if (current === '' || !current.startsWith(origin + '/') && current !== url) {
+      const rootUrl = origin + '/';
       const target = url;
       view.webContents
         .loadURL(rootUrl)
