@@ -4,7 +4,7 @@
 // runs in a plain browser (its env switch checks window.process) and talk to
 // the embedded server over http/ws like in web mode.
 
-import { BrowserWindow, WebContentsView, shell } from 'electron';
+import { BrowserWindow, WebContentsView, nativeTheme, shell } from 'electron';
 import path from 'node:path';
 import { AppSettings, PageId, Rect } from '../shared/types';
 
@@ -24,7 +24,7 @@ export class WindowManager {
       minWidth: 1200,
       minHeight: 760,
       title: 'AIoScout',
-      backgroundColor: '#f9f9f8',
+      backgroundColor: nativeTheme.shouldUseDarkColors ? '#101214' : '#f9f9f8',
       webPreferences: {
         // Shell renderer: isolated + sandboxed, talks to main via preload only.
         preload: path.join(__dirname, '../preload/index.js'),
@@ -72,7 +72,11 @@ export class WindowManager {
         .loadURL(rootUrl)
         .then(() => {
           const seed = JSON.stringify({
-            user: { language: settings.language, languageAuto: false }
+            user: {
+              language: settings.language,
+              languageAuto: false,
+              theme: 'auto' // follow the system theme, like the shell
+            }
           });
           return view.webContents.executeJavaScript(
             `try { localStorage.setItem('mixly2.0', ${JSON.stringify(seed)}); } catch (e) {}`

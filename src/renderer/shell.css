@@ -19,6 +19,24 @@
   --sp-3: 24px;
   --sp-4: 32px;
   --sp-6: 48px;
+  color-scheme: light dark;
+}
+
+/* Dark mode (DESIGN.md tokens inverted): follows the system theme; the
+   embedded pages (mixly editor, training workspace) follow the system
+   theme as well, so the whole app flips together. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #f2f2f0;
+    --black: #ffffff;
+    --body: #b6b6b2;
+    --mute: #8f8f8a;
+    --hairline: #33363a;
+    --canvas: #191b1e;
+    --canvas-soft: #101214;
+    --accent-orange: #f58331;
+    --accent-purple: #9a9ade;
+  }
 }
 
 * {
