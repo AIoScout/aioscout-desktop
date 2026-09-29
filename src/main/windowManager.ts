@@ -113,8 +113,8 @@ export class WindowManager {
     if (other) this.main.contentView.removeChildView(other);
   }
 
-  /** Renderer reports the content-area rect (CSS px) it reserved for subpages.
-   * The shell may be zoomed — convert back to window DIP before applying. */
+  /** Renderer reports the content-area rect in CSS px. On screen that maps
+   * to window DIP via the shell's zoom factor (CSS px × zoom = DIP). */
   setContentBounds(rect: Rect): void {
     let f = 1;
     try {
@@ -123,10 +123,10 @@ export class WindowManager {
       /* window gone */
     }
     this.bounds = {
-      x: rect.x / f,
-      y: rect.y / f,
-      width: rect.width / f,
-      height: rect.height / f
+      x: rect.x * f,
+      y: rect.y * f,
+      width: rect.width * f,
+      height: rect.height * f
     };
     const active = this.active === 'coding' ? this.coding : this.training;
     if (active) this.applyBounds(active);
