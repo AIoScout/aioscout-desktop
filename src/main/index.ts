@@ -6,6 +6,7 @@
 // the shell's progress panel).
 
 import { app, Menu } from 'electron';
+import fs from 'node:fs';
 import path from 'node:path';
 import { AppSettings, IPC, PageId } from '../shared/types';
 import { AppPaths, boardEditorUrl, resolvePaths } from './paths';
@@ -17,6 +18,7 @@ import { registerIpc } from './ipc';
 import { ModelLibrary } from './linkage/modelLibrary';
 import { ExportWatcher } from './linkage/exportWatcher';
 import { ArduinoToolchain } from './arduinoCli';
+import { httpRequest } from './services/util';
 
 let paths: AppPaths | null = null;
 let windows: WindowManager | null = null;
@@ -92,9 +94,46 @@ function buildMenu(): void {
 
 let desiredPage: PageId = 'training';
 
+/** Release the serial ports held by the page the user is leaving, so the
+ * other app can open the same board. mixly: serial monitor ports via
+ * /serial/close-all; training: live device sessions via the RecordController
+ * API, whose port the training backend publishes to
+ * <training-data>/record_controller_port.json. */
+function releaseSerialFor(page: PageId): void {
+  if (!mixly || !training || !paths) return;
+  if (page === 'coding') {
+    const port = mixly.status.port;
+    if (port === null) return;
+    void httpRequest('POST', `http://127.0.0.1:${port}/serial/close-all`)
+      .then(() => console.log('[serial] released (coding left)'))
+      .catch((e) => console.warn('[serial] release failed for coding:', e instanceof Error ? e.message : e));
+  } else {
+    const rcPort = readRecordControllerPort();
+    if (rcPort === null) return;
+    void httpRequest('GET', `http://127.0.0.1:${rcPort}/live/close-all`)
+      .then(() => console.log('[serial] released (training left)'))
+      .catch((e) => console.warn('[serial] release failed for training:', e instanceof Error ? e.message : e));
+  }
+}
+
+function readRecordControllerPort(): number | null {
+  try {
+    const raw = fs.readFileSync(
+      path.join(paths!.trainingDataDir, 'record_controller_port.json'),
+      'utf8'
+    );
+    const port = JSON.parse(raw)?.port;
+    return typeof port === 'number' ? port : null;
+  } catch {
+    return null; // not started / no page rendered yet — nothing to release
+  }
+}
+
 function showPage(page: PageId): void {
   if (!windows || !mixly || !training || !settings) return;
+  const previous = desiredPage;
   desiredPage = page;
+  if (previous && previous !== page) releaseSerialFor(previous);
   if (page === 'coding') {
     if (mixly.status.state === 'ready' && mixly.status.port) {
       windows.show('coding', boardEditorUrl(mixly.status.port), settings);

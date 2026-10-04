@@ -2,6 +2,26 @@
 
 import http from 'node:http';
 
+/** Fire-and-forget HTTP request to a local service endpoint. */
+export function httpRequest(
+  method: 'GET' | 'POST',
+  url: string,
+  timeoutMs = 3000
+): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const req = http.request(url, { method, timeout: timeoutMs }, (res) => {
+      res.resume();
+      resolve(res.statusCode ?? 0);
+    });
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('timeout'));
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
 /** Poll a URL until it answers with any HTTP response. Resolves true/false. */
 export function httpOk(url: string, timeoutMs = 2000): Promise<boolean> {
   return new Promise((resolve) => {
