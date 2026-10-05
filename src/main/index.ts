@@ -5,7 +5,7 @@
 // training backend (eager by default; its 30–80 s TensorFlow boot hides behind
 // the shell's progress panel).
 
-import { app, Menu } from 'electron';
+import { app, Menu, nativeImage } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 import { AppSettings, IPC, PageId } from '../shared/types';
@@ -173,6 +173,18 @@ function boot(): void {
   }
   settings = loadSettings();
   buildMenu();
+
+  // Dev runs show the Electron icon in the dock — use the app icon instead
+  // (packaged builds pick it up from the bundle automatically).
+  if (process.platform === 'darwin' && !app.isPackaged) {
+    try {
+      app.dock?.setIcon(
+        nativeImage.createFromPath(path.join(app.getAppPath(), 'build', 'icon.png'))
+      );
+    } catch {
+      /* cosmetic only */
+    }
+  }
 
   windows = new WindowManager();
   windows.main.on('closed', () => {
