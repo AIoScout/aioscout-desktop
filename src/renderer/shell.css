@@ -98,6 +98,16 @@ body {
   width: 28px;
   height: 28px;
   flex: none;
+  display: inline-block;
+  background-color: var(--logo-color);
+  -webkit-mask-image: url('./assets/logo.svg');
+  mask-image: url('./assets/logo.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .wordmark {
@@ -288,7 +298,16 @@ body {
   width: 72px;
   height: 72px;
   margin-bottom: var(--sp-1);
-  color: var(--logo-color); /* orange in light, purple in dark */
+  display: inline-block;
+  background-color: var(--logo-color); /* orange in light, purple in dark */
+  -webkit-mask-image: url('./assets/logo.svg');
+  mask-image: url('./assets/logo.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .index-title {
