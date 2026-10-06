@@ -46,6 +46,12 @@
   border-radius: 0;
 }
 
+/* The hidden attribute must win over .panel's display:flex — without this,
+   "hidden" panels render on top of the visible one. */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
