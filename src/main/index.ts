@@ -134,7 +134,10 @@ function showPage(page: PageId): void {
   const previous = desiredPage;
   desiredPage = page;
   if (previous && previous !== page) releaseSerialFor(previous);
-  if (page === 'coding') {
+  if (page === 'home') {
+    // Index page: no subpage view — just the shell renderer.
+    windows.detachAll();
+  } else if (page === 'coding') {
     if (mixly.status.state === 'ready' && mixly.status.port) {
       windows.show('coding', boardEditorUrl(mixly.status.port), settings);
     }

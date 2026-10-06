@@ -73,10 +73,30 @@ body {
   flex: none;
 }
 
+/* ── Wordmark with icon ─────────────────────────────────── */
+.wordmark-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.wordmark-icon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
 .wordmark {
   font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .nav {
@@ -107,6 +127,10 @@ body {
 .nav-link.active {
   color: var(--ink);
   border-bottom-color: var(--ink);
+}
+
+.nav-link--home.active {
+  border-bottom-color: transparent;
 }
 
 /* ── Status cluster ──────────────────────────────────────── */
@@ -244,6 +268,96 @@ body {
   display: flex;
   gap: var(--sp-1);
   margin-top: var(--sp-2);
+}
+
+/* ── Index / home page ───────────────────────────────────── */
+.index-panel {
+  justify-content: center;
+  gap: var(--sp-2);
+}
+
+.index-logo {
+  width: 72px;
+  height: 72px;
+  margin-bottom: var(--sp-1);
+  color: var(--ink);
+}
+
+.index-title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.index-subtitle {
+  margin: 0;
+  max-width: 440px;
+  color: var(--body);
+  font-size: 15px;
+}
+
+.index-cards {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.index-card {
+  appearance: none;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  padding: var(--sp-3) var(--sp-4);
+  width: 240px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  transition: border-color 0.15s ease;
+}
+
+.index-card:hover {
+  border-color: var(--ink);
+}
+
+.index-card h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.index-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--body);
+  line-height: 1.45;
+}
+
+.index-links {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.index-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--body);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.index-link:hover {
+  color: var(--ink);
+}
+
+.index-link--soon {
+  color: var(--mute);
+  text-decoration: none;
+  cursor: default;
 }
 
 /* ── Buttons ─────────────────────────────────────────────── */

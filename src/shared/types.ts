@@ -3,7 +3,7 @@
 
 export type ServiceId = 'mixly' | 'training';
 export type ServiceState = 'stopped' | 'starting' | 'ready' | 'failed' | 'restarting';
-export type PageId = 'training' | 'coding';
+export type PageId = 'home' | 'training' | 'coding';
 
 export interface ServiceStatus {
   id: ServiceId;

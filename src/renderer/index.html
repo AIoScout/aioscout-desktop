@@ -12,7 +12,10 @@
   </head>
   <body>
     <header class="topbar">
-      <div class="wordmark">AIoScout</div>
+      <button class="wordmark-btn" id="nav-home" data-page="home">
+        <img src="./assets/logo.svg" alt="AIoScout" class="wordmark-icon" />
+        <span class="wordmark">AIoScout</span>
+      </button>
       <nav class="nav" id="nav">
         <button class="nav-link" id="nav-training" data-page="training">AI Training</button>
         <button class="nav-link" id="nav-coding" data-page="coding">Block Coding</button>
@@ -31,6 +34,35 @@
 
     <!-- The subpage WebContentsViews attach exactly over this element. -->
     <main class="content" id="subpage-host">
+      <!-- ── Index / home page ──────────────────────────────── -->
+      <section class="panel index-panel" id="panel-home" hidden>
+        <img src="./assets/logo.svg" alt="AIoScout" class="index-logo" />
+        <h1 class="index-title">Welcome to AIoScout</h1>
+        <p class="index-subtitle">
+          Build, train and deploy AI models on your smart car — all in one place.
+        </p>
+
+        <div class="index-cards">
+          <button class="index-card" id="card-training">
+            <div class="eyebrow">Step 1</div>
+            <h3>AI Training</h3>
+            <p>Collect samples, train a model, and export it to your car.</p>
+          </button>
+          <button class="index-card" id="card-coding">
+            <div class="eyebrow">Step 2</div>
+            <h3>Block Coding</h3>
+            <p>Program your car with blocks, pick a model, and flash it.</p>
+          </button>
+        </div>
+
+        <div class="index-links">
+          <a class="index-link" href="https://aioscout.io" target="_blank">Website ↗</a>
+          <a class="index-link" href="https://aioscout.io/tutorial-materials/" target="_blank">Tutorials ↗</a>
+          <span class="index-link index-link--soon">Manual (coming soon)</span>
+        </div>
+      </section>
+
+      <!-- ── Loading panels (subpage booting) ──────────────── -->
       <section class="panel" id="panel-training" hidden>
         <div class="eyebrow">AI training engine</div>
         <h1 class="panel-title">Preparing the training workspace</h1>

@@ -4,6 +4,7 @@
 const els = {
   nav: document.getElementById('nav'),
   navLinks: {
+    home: document.getElementById('nav-home'),
     training: document.getElementById('nav-training'),
     coding: document.getElementById('nav-coding')
   },
@@ -13,6 +14,7 @@ const els = {
   },
   host: document.getElementById('subpage-host'),
   panels: {
+    home: document.getElementById('panel-home'),
     training: document.getElementById('panel-training'),
     coding: document.getElementById('panel-coding')
   },
@@ -39,7 +41,7 @@ const STATE_LABEL = {
   failed: 'Failed'
 };
 
-let activePage = 'training';
+let activePage = 'home';
 const serviceStates = { training: 'stopped', mixly: 'stopped' };
 let trainingPhase = null;
 
@@ -57,9 +59,11 @@ function renderStatusChip(id) {
 }
 
 function renderPanels() {
+  const showHome = activePage === 'home';
   const showTraining =
     activePage === 'training' && (serviceStates.training !== 'ready' || trainingPhase === 'failed');
   const showCoding = activePage === 'coding' && serviceStates.mixly !== 'ready';
+  els.panels.home.hidden = !showHome;
   els.panels.training.hidden = !showTraining;
   els.panels.coding.hidden = !showCoding;
 }
@@ -80,6 +84,8 @@ function switchPage(page) {
 for (const link of Object.values(els.navLinks)) {
   link.addEventListener('click', () => switchPage(link.dataset.page));
 }
+document.getElementById('card-training').addEventListener('click', () => switchPage('training'));
+document.getElementById('card-coding').addEventListener('click', () => switchPage('coding'));
 
 document.getElementById('btn-retry-training').addEventListener('click', () => {
   window.aioscout.services.restart('training');
@@ -171,7 +177,6 @@ window.aioscout.on.trainingProgress((p) => {
   serviceStates.mixly = status.mixly.state;
   renderAll();
   reportBounds();
-  // Default landing tab is AI Training; tell main so it can attach the view
-  // as soon as the backend is ready.
-  window.aioscout.nav.show('training');
+  // Default landing page is the index; tell main so it detaches subpage views.
+  window.aioscout.nav.show('home');
 })();

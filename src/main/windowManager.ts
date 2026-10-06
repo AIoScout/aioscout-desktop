@@ -172,6 +172,13 @@ export class WindowManager {
     );
   }
 
+  detachAll(): void {
+    for (const v of [this.coding, this.training]) {
+      if (v) this.main.contentView.removeChildView(v);
+    }
+    this.active = null;
+  }
+
   destroyAll(): void {
     for (const v of [this.coding, this.training]) {
       if (v) this.main.contentView.removeChildView(v);
