@@ -1,7 +1,7 @@
 {
   "name": "aioscout-desktop",
   "productName": "AIoScout",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "AIoScout — unified desktop app for AI model training and block coding on the AIoScout smart car",
   "main": "out/main/index.js",
   "author": "AIoScout",
