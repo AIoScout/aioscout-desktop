@@ -30,7 +30,7 @@ env:
   MIXLY_REPO: AIoScout/mixly_lite
   MIXLY_REF: feat/tflite-model-v2
   AITRAINING_REPO: AIoScout/Aitraining
-  AITRAINING_REF: fix/orphan-streamlit-timeout
+  AITRAINING_REF: main
   ARDUINO_CLI_VERSION: '1.4.1'
   ESP32_CORE_VERSION: '3.3.0'
 
