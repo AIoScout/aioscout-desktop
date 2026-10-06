@@ -14,6 +14,7 @@
   --canvas-soft: #f9f9f8;
   --accent-orange: #f58331;
   --accent-purple: #5b5ba8;
+  --logo-color: var(--accent-orange);
   --sp-1: 8px;
   --sp-2: 16px;
   --sp-3: 24px;
@@ -36,6 +37,7 @@
     --canvas-soft: #101214;
     --accent-orange: #f58331;
     --accent-purple: #9a9ade;
+    --logo-color: var(--accent-purple);
   }
 }
 
@@ -83,7 +85,7 @@ body {
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  color: var(--ink);
+  color: var(--logo-color); /* orange in light, purple in dark */
 }
 
 .wordmark-icon {
@@ -280,7 +282,7 @@ body {
   width: 72px;
   height: 72px;
   margin-bottom: var(--sp-1);
-  color: var(--ink);
+  color: var(--logo-color); /* orange in light, purple in dark */
 }
 
 .index-title {

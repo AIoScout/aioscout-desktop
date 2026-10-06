@@ -92,7 +92,7 @@ function buildMenu(): void {
   Menu.setApplicationMenu(menu);
 }
 
-let desiredPage: PageId = 'training';
+let desiredPage: PageId = 'home';
 
 /** Release the serial ports held by the page the user is leaving, so the
  * other app can open the same board. mixly: serial monitor ports via
