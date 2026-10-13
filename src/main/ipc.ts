@@ -81,11 +81,13 @@ export function registerIpc(deps: IpcDeps): void {
     const tflite = picked.filePaths[0];
     const labels = tflite.replace(/\.tflite$/i, '') + '.txt';
     const name = path.basename(tflite).replace(/\.tflite$/i, '');
+    const preprocess = tflite.replace(/\.tflite$/i, '') + '.preprocess.json';
     return deps.models.import(
       tflite,
       fs.existsSync(labels) ? labels : null,
       name,
-      'file'
+      'file',
+      fs.existsSync(preprocess) ? preprocess : null
     );
   });
 

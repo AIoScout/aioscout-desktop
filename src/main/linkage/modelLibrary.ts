@@ -75,12 +75,15 @@ export class ModelLibrary extends EventEmitter {
     return dir;
   }
 
-  /** Import a model.tflite (+ optional labels.txt) into the library. */
+  /** Import a model.tflite (+ optional labels.txt / preprocess.json) into
+   * the library. preprocess.json carries the training app's class filter
+   * settings, which the block-coding compiler bakes into the firmware. */
   import(
     tflitePath: string,
     labelsPath: string | null,
     name: string,
-    source: 'training' | 'file'
+    source: 'training' | 'file',
+    preprocessPath?: string | null
   ): ModelMeta {
     const id = crypto.randomBytes(5).toString('hex');
     const dir = this.uniqueNameDir(name || id);
@@ -91,6 +94,9 @@ export class ModelLibrary extends EventEmitter {
     if (labelsPath && fs.existsSync(labelsPath)) {
       fs.copyFileSync(labelsPath, path.join(dir, 'labels.txt'));
       labels = readMetaLineLabels(dir);
+    }
+    if (preprocessPath && fs.existsSync(preprocessPath)) {
+      fs.copyFileSync(preprocessPath, path.join(dir, 'preprocess.json'));
     }
     const meta: ModelMeta = {
       id: finalId,

@@ -206,7 +206,8 @@ function boot(): void {
       path.join(dir, 'model.tflite'),
       path.join(dir, 'labels.txt'),
       name,
-      'training'
+      'training',
+      path.join(dir, 'preprocess.json')
     );
   });
   exportWatcher.start();
