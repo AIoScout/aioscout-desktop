@@ -106,7 +106,7 @@ def main() -> int:
 
     errors, warnings = [], []
     for src in app_sources:
-        tree = ast.parse(src.read_text(), filename=str(src))
+        tree = ast.parse(src.read_text(encoding="utf-8"), filename=str(src))
         hard, guarded = collect_imports(tree)
         for name in sorted(hard - SKIP):
             if name not in available:
