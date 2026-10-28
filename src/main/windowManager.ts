@@ -62,6 +62,20 @@ export class WindowManager {
     this.applyBounds(view);
     this.active = page;
 
+    // WebContentsView's document.visibilityState does not reliably flip
+    // when the view is re-attached, so tell the coding page explicitly —
+    // its smartcar plugin reopens serial monitors the shell's handoff
+    // (/serial/close-all) had closed while the page was hidden.
+    if (page === 'coding') {
+      try {
+        view.webContents.executeJavaScript(
+          'window.__aioscoutSignalVisible && window.__aioscoutSignalVisible()'
+        ).catch(() => {});
+      } catch {
+        /* view not ready */
+      }
+    }
+
     // First-time load sequence, or the backend restarted on a new port —
     // point the view at the requested URL. For the coding view we land on
     // the server root first so we can pre-seed localStorage (language,
