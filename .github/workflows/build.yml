@@ -111,6 +111,11 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
           python -m PyInstaller --clean --noconfirm TFLiteTraining.spec
 
+      - name: Smoke-test the training backend (headless boot check)
+        working-directory: aioscout-desktop
+        shell: bash
+        run: bash scripts/smoke-test-training.sh ../AItraining/dist/TFLiteTraining
+
       - name: Prepare sidecar resources
         working-directory: aioscout-desktop
         shell: bash
