@@ -48,7 +48,9 @@ if [[ -z "$PYBIN" ]]; then
 fi
 "$PYBIN" "$SCRIPT_DIR/check-bundle-imports.py" "$DIST_DIR"
 
-OUT="$(mktemp -t smoke-training)"
+# Portable across BSD mktemp (macOS, treats -t TEMPLATE as a prefix) and GNU
+# mktemp (git-bash, requires X's in the template).
+OUT="$(mktemp "${TMPDIR:-/tmp}/smoke-training.XXXXXX")"
 START=$(date +%s)
 
 dump_output() {
