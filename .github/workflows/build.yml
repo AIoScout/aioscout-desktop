@@ -28,7 +28,7 @@ on:
 # the feature branches merge into their mainlines.
 env:
   MIXLY_REPO: AIoScout/mixly_lite
-  MIXLY_REF: feat/tflite-model-v2
+  MIXLY_REF: master
   AITRAINING_REPO: AIoScout/Aitraining
   AITRAINING_REF: main
   ARDUINO_CLI_VERSION: '1.4.1'
