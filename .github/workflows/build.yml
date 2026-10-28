@@ -129,6 +129,10 @@ jobs:
           ref: main
           path: TFLite_Car_License
           token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+      - name: Smoke-test the training backend (headless boot check)
+        working-directory: aioscout-desktop
+        shell: bash
+        run: bash scripts/smoke-test-training.sh ../AItraining/dist/TFLiteTraining
 
       - name: Prepare sidecar resources
         working-directory: aioscout-desktop
