@@ -1,6 +1,6 @@
 // IPC surface between the shell renderer and the main process.
 
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { BrowserWindow, dialog, app, ipcMain, shell } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 import { IPC, PageId, Rect, ServiceId, AppSettings } from '../shared/types';
@@ -9,6 +9,8 @@ import { MixlyService } from './services/mixly';
 import { TrainingService } from './services/training';
 import { ModelLibrary } from './linkage/modelLibrary';
 import { loadSettings, saveSettings } from './settings';
+// The product EULA, bundled verbatim at build time (vite ?raw).
+import eulaText from '../../EULA.md?raw';
 
 interface IpcDeps {
   paths: AppPaths;
@@ -89,6 +91,22 @@ export function registerIpc(deps: IpcDeps): void {
       'file',
       fs.existsSync(preprocess) ? preprocess : null
     );
+  });
+
+  // ── EULA gate ─────────────────────────────────────────────
+  // First-launch license acceptance for the main app. Kept as a plain
+  // flag file next to settings.json so it survives reinstalls of the app
+  // bundle but is per-user and easy to reset for support.
+  const eulaFlag = () => path.join(app.getPath('userData'), 'eula_accepted.flag');
+  ipcMain.handle(IPC.EulaGetState, () => ({
+    accepted: fs.existsSync(eulaFlag()),
+    // The EULA ships in the bundle; fall back to a pointer if missing.
+    text: eulaText
+  }));
+  ipcMain.handle(IPC.EulaAccept, () => {
+    fs.mkdirSync(path.dirname(eulaFlag()), { recursive: true });
+    fs.writeFileSync(eulaFlag(), new Date().toISOString(), 'utf-8');
+    return true;
   });
 
   ipcMain.handle(IPC.AppQuit, () => {

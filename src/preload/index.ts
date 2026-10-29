@@ -48,6 +48,14 @@ const api = {
       return ipcRenderer.invoke(IPC.ModelsImportFile);
     }
   },
+  eula: {
+    getState(): Promise<{ accepted: boolean; text: string }> {
+      return ipcRenderer.invoke(IPC.EulaGetState);
+    },
+    accept(): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.EulaAccept);
+    }
+  },
   on: {
     servicesStatusChanged(cb: (status: ServiceStatus) => void): () => void {
       const listener = (_e: unknown, v: ServiceStatus) => cb(v);

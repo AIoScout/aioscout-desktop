@@ -151,6 +151,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          body_path: aioscout-desktop/RELEASE_TEMPLATE.md
           files: |
             aioscout-desktop/dist/*.dmg
             aioscout-desktop/dist/*.exe

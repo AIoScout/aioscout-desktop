@@ -74,6 +74,8 @@ export const IPC = {
   ModelsRename: 'models:rename',
   ModelsDelete: 'models:delete',
   ModelsImportFile: 'models:importFile',
+  EulaGetState: 'eula:getState',
+  EulaAccept: 'eula:accept',
   // main -> renderer (send)
   ServicesStatusChanged: 'services:statusChanged',
   TrainingProgress: 'training:progress',

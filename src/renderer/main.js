@@ -180,3 +180,67 @@ window.aioscout.on.trainingProgress((p) => {
   // Default landing page is the index; tell main so it detaches subpage views.
   window.aioscout.nav.show('home');
 })();
+
+
+// ── EULA gate + Licenses dialog ──────────────────────────────────────
+// macOS DMGs have no install-time agreement surface, so the main app
+// gates on first launch instead: the shell stays behind a modal until
+// the product EULA is accepted (persisted by the main process). The AI
+// Training sub-app shows its own, separate license screen on first use.
+
+const els = {
+  gate: document.getElementById('eula-gate'),
+  gateText: document.getElementById('eula-text'),
+  accept: document.getElementById('btn-eula-accept'),
+  decline: document.getElementById('btn-eula-decline'),
+  licensesLink: document.getElementById('eula-open-licenses'),
+  navLicenses: document.getElementById('nav-licenses'),
+  dialog: document.getElementById('licenses-dialog'),
+  dialogClose: document.getElementById('btn-licenses-close'),
+  openEula: document.getElementById('licenses-open-eula'),
+  excerpt: document.getElementById('licenses-eula-excerpt')
+};
+
+let eulaText = '';
+
+function openExternal(url) {
+  // The shell is sandboxed without node; route links through the default
+  // browser via the main process window-open handler.
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function initEula() {
+  const state = await window.aioscout.eula.getState();
+  eulaText = state.text || '';
+  els.gateText.textContent = eulaText;
+  els.excerpt.textContent = eulaText.slice(0, 600) + (eulaText.length > 600 ? '…' : '');
+  if (!state.accepted) {
+    els.gate.hidden = false;
+  }
+}
+
+function acceptEula() {
+  window.aioscout.eula.accept();
+  els.gate.hidden = true;
+}
+
+if (els.accept) {
+  els.accept.addEventListener('click', acceptEula);
+  els.decline.addEventListener('click', () => window.aioscout.app.quit());
+  els.licensesLink.addEventListener('click', () => { els.dialog.hidden = false; });
+  els.navLicenses.addEventListener('click', () => { els.dialog.hidden = false; });
+  els.dialogClose.addEventListener('click', () => { els.dialog.hidden = true; });
+  els.openEula.addEventListener('click', () => { els.dialog.hidden = true; els.gate.hidden = false; els.gateText.focus(); });
+  els.dialog.addEventListener('click', (e) => { if (e.target === els.dialog) els.dialog.hidden = true; });
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-ext]');
+    if (a) { e.preventDefault(); openExternal(a.dataset.ext); }
+  });
+  initEula();
+}

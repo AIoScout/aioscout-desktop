@@ -21,6 +21,7 @@
         <button class="nav-link" id="nav-coding" data-page="coding">Block Coding</button>
       </nav>
       <div class="status-cluster" id="status-cluster">
+        <button class="nav-link" id="nav-licenses" title="Licenses and acknowledgements">Licenses</button>
         <div class="status-chip" id="chip-training" title="AI training engine">
           <span class="eyebrow">Training engine</span>
           <span class="status-line"><span class="dot"></span><span class="status-text">…</span></span>
@@ -92,6 +93,59 @@
         <button class="btn-outline" id="btn-model-discard">Discard</button>
       </div>
       <button class="model-toast-link" id="btn-model-open-coding">Use it in Block Coding →</button>
+    </div>
+
+    <!-- ── First-launch EULA gate ─────────────────────────── -->
+    <div class="eula-gate" id="eula-gate" hidden>
+      <div class="eula-card">
+        <div class="eyebrow">Before you start</div>
+        <h1 class="eula-title">End User License Agreement</h1>
+        <p class="eula-sub">Please review the agreement. You must accept it to use AIoScout.</p>
+        <div class="eula-text" id="eula-text" tabindex="0" role="region" aria-label="End User License Agreement"></div>
+        <div class="eula-third-party">
+          The app bundles third-party open-source components, including
+          <a href="#" data-ext="https://github.com/googlecreativelab/teachable-machine-v1/blob/master/LICENSE">Google Teachable Machine&nbsp;v1 (Apache-2.0)</a>
+          and <a href="#" data-ext="https://github.com/mixly/mixly_lite">Mixly</a> (name and author retained per its license).
+          Open <a href="#" id="eula-open-licenses">Licenses</a> for the full list.
+        </div>
+        <div class="eula-actions">
+          <button class="btn-primary" id="btn-eula-accept">I Agree</button>
+          <button class="btn-outline" id="btn-eula-decline">Decline &amp; Quit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Licenses dialog (reachable from the topbar any time) ── -->
+    <div class="licenses-dialog" id="licenses-dialog" hidden>
+      <div class="licenses-card">
+        <div class="licenses-head">
+          <h1 class="licenses-title">Licenses &amp; acknowledgements</h1>
+          <button class="btn-outline" id="btn-licenses-close">Close</button>
+        </div>
+        <div class="licenses-body">
+          <section>
+            <h2>AIoScout — End User License Agreement</h2>
+            <p>The app is distributed under the AIoScout EULA
+              (<a href="#" id="licenses-open-eula">read in full</a>).</p>
+          </section>
+          <section>
+            <h2>Bundled components</h2>
+            <ul class="licenses-list">
+              <li><b>AI Training tool</b> — built on <a href="#" data-ext="https://github.com/googlecreativelab/teachable-machine-v1">Google Teachable Machine&nbsp;v1</a>
+                (Apache-2.0). Its own license screen appears the first time you open AI Training.</li>
+              <li><b>Block Coding editor</b> — based on <a href="#" data-ext="https://github.com/mixly/mixly_lite">Mixly</a> by the Mixly Team @ Beijing Normal University.
+                The Mixly name and author information are retained as its license requires.</li>
+              <li><b>TensorFlow / Keras</b> (Apache-2.0), <b>Streamlit</b> (Apache-2.0),
+                <b>Blockly</b> (Apache-2.0), <b>Electron</b> (MIT) and other permissive components —
+                see the third-party notices bundled with the app.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Full texts</h2>
+            <p class="licenses-note" id="licenses-eula-excerpt"></p>
+          </section>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="./main.js"></script>
