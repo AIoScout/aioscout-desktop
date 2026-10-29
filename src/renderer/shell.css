@@ -623,3 +623,52 @@ body {
   font-size: 12px;
   color: var(--mute);
 }
+
+/* Markdown inside the EULA pane and the licenses excerpt */
+.eula-text h2,
+.licenses-note h2 {
+  margin: var(--sp-2) 0 var(--sp-1);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.eula-text h3,
+.licenses-note h3 {
+  margin: var(--sp-2) 0 var(--sp-1);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.eula-text h4,
+.licenses-note h4 {
+  margin: var(--sp-1) 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.eula-text p,
+.licenses-note p {
+  margin: 0 0 var(--sp-1);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--body);
+  white-space: normal;
+}
+
+.eula-text ul,
+.eula-text ol,
+.licenses-note ul,
+.licenses-note ol {
+  margin: 0 0 var(--sp-1);
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+.eula-text strong {
+  color: var(--ink);
+}

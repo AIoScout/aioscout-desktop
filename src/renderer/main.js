@@ -182,13 +182,49 @@ window.aioscout.on.trainingProgress((p) => {
 })();
 
 
+// ── Minimal markdown → HTML for license texts ────────────────────────
+// The shell is sandboxed with no dependencies, so this covers the subset
+// the EULA uses: headings, bold/italic, bullets and bare URLs. Input is
+// escaped first; the output only contains markup generated here.
+function renderMarkdown(md) {
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inline = (t) =>
+    esc(t)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>')
+      .replace(/(https?:\/\/[^\s)]+)/g, '<a href="#" data-ext="$1">$1</a>');
+  const out = [];
+  let list = null;
+  for (const rawLine of md.split(/\r?\n/)) {
+    const line = rawLine.trimEnd();
+    if (/^#{1,3}\s/.test(line)) {
+      if (list) { out.push('</' + list + '>'); list = null; }
+      const level = Math.min(line.match(/^#+/)[0].length + 1, 4); // shift down one
+      out.push(`<h${level}>${inline(line.replace(/^#+\s*/, ''))}</h${level}>`);
+    } else if (/^[-*]\s+/.test(line)) {
+      if (list !== 'ul') { if (list) out.push('</' + list + '>'); out.push('<ul>'); list = 'ul'; }
+      out.push(`<li>${inline(line.replace(/^[-*]\s+/, ''))}</li>`);
+    } else if (/^\d+\.\s+/.test(line)) {
+      if (list !== 'ol') { if (list) out.push('</' + list + '>'); out.push('<ol>'); list = 'ol'; }
+      out.push(`<li>${inline(line.replace(/^\d+\.\s+/, ''))}</li>`);
+    } else if (line.trim() === '') {
+      if (list) { out.push('</' + list + '>'); list = null; }
+    } else {
+      if (list) { out.push('</' + list + '>'); list = null; }
+      out.push(`<p>${inline(line)}</p>`);
+    }
+  }
+  if (list) out.push('</' + list + '>');
+  return out.join('\n');
+}
+
 // ── EULA gate + Licenses dialog ──────────────────────────────────────
 // macOS DMGs have no install-time agreement surface, so the main app
 // gates on first launch instead: the shell stays behind a modal until
 // the product EULA is accepted (persisted by the main process). The AI
 // Training sub-app shows its own, separate license screen on first use.
 
-const els = {
+const licEls = {
   gate: document.getElementById('eula-gate'),
   gateText: document.getElementById('eula-text'),
   accept: document.getElementById('btn-eula-accept'),
@@ -218,26 +254,26 @@ function openExternal(url) {
 async function initEula() {
   const state = await window.aioscout.eula.getState();
   eulaText = state.text || '';
-  els.gateText.textContent = eulaText;
-  els.excerpt.textContent = eulaText.slice(0, 600) + (eulaText.length > 600 ? '…' : '');
+  licEls.gateText.innerHTML = renderMarkdown(eulaText);
+  licEls.excerpt.innerHTML = renderMarkdown(eulaText.split('\n').slice(0, 6).join('\n'));
   if (!state.accepted) {
-    els.gate.hidden = false;
+    licEls.gate.hidden = false;
   }
 }
 
 function acceptEula() {
   window.aioscout.eula.accept();
-  els.gate.hidden = true;
+  licEls.gate.hidden = true;
 }
 
-if (els.accept) {
-  els.accept.addEventListener('click', acceptEula);
-  els.decline.addEventListener('click', () => window.aioscout.app.quit());
-  els.licensesLink.addEventListener('click', () => { els.dialog.hidden = false; });
-  els.navLicenses.addEventListener('click', () => { els.dialog.hidden = false; });
-  els.dialogClose.addEventListener('click', () => { els.dialog.hidden = true; });
-  els.openEula.addEventListener('click', () => { els.dialog.hidden = true; els.gate.hidden = false; els.gateText.focus(); });
-  els.dialog.addEventListener('click', (e) => { if (e.target === els.dialog) els.dialog.hidden = true; });
+if (licEls.accept) {
+  licEls.accept.addEventListener('click', acceptEula);
+  licEls.decline.addEventListener('click', () => window.aioscout.app.quit());
+  licEls.licensesLink.addEventListener('click', () => { licEls.dialog.hidden = false; });
+  licEls.navLicenses.addEventListener('click', () => { licEls.dialog.hidden = false; });
+  licEls.dialogClose.addEventListener('click', () => { licEls.dialog.hidden = true; });
+  licEls.openEula.addEventListener('click', () => { licEls.dialog.hidden = true; licEls.gate.hidden = false; licEls.gateText.focus(); });
+  licEls.dialog.addEventListener('click', (e) => { if (e.target === licEls.dialog) licEls.dialog.hidden = true; });
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[data-ext]');
     if (a) { e.preventDefault(); openExternal(a.dataset.ext); }
