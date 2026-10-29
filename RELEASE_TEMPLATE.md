@@ -1,3 +1,10 @@
+## What's new in 0.2.2
+
+- **Serial Monitor** — one-click Monitor button in Block Coding (follows the selected port), auto-reconnect across page switches, and a full port handoff between AI Training and Block Coding.
+- **Block Coding design refresh** — AIoScout design language across the editor chrome (light & dark).
+- **Licensing** — first-launch EULA, in-app Licenses page, Mixly attribution, third-party notices and car-license recognition updates in AI Training.
+- **Upload fixes** — Serial.begin ordering, huge_app partition for large models.
+
 ## Downloads
 
 | Platform | File |
