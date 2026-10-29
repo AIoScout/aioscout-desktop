@@ -155,6 +155,16 @@ function showPage(page: PageId): void {
 }
 
 function boot(): void {
+  // Dev runs the raw Electron binary, so the dock/taskbar would show
+  // Electron's default icon — pin the product icon for dev sessions too
+  // (packaged builds get it from the bundle's .icns/.ico instead).
+  if (!app.isPackaged && process.platform === 'darwin') {
+    try {
+      app.dock?.setIcon(path.join(__dirname, '../../build/icon.png'));
+    } catch {
+      /* icon is cosmetic in dev */
+    }
+  }
   if (!app.requestSingleInstanceLock()) {
     app.quit();
     return;
