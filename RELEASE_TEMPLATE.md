@@ -1,3 +1,10 @@
+## What's new in 0.2.3
+
+- **Workshop programs as blocks** — all four workshop programs (road sign, turnstile car, turnstile startup, turnstile plate) are now built from SmartCar blocks: P4 link, line-follow, obstacle wait, left-motor and plate blocks; every template sits in the Open ▾ menu and the road-sign program is the default S3 starter.
+- **AI Eye firmware burn** — the "AI Eye firmware" program makes Compile & Upload build and flash the model exported from AI Training straight to the P4 board (road-sign and plate firmwares). Exporting with "Export Model" jumps to Block Coding with the program open and the board preselected. Requires the workshop core (esp32_mannual); the app shows install guidance when it is missing.
+- **AI Training updates** — Koil's final wave: new logo and licensing, Car License fixes and manual, HK-governed EULA.
+- **Stability** — concurrent compiles no longer wedge the shell until restart; the S3 "AI Body" blocks are removed (vision always runs on the P4).
+
 ## What's new in 0.2.2
 
 - **Serial Monitor** — one-click Monitor button in Block Coding (follows the selected port), auto-reconnect across page switches, and a full port handoff between AI Training and Block Coding.
