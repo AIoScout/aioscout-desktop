@@ -208,6 +208,9 @@ function boot(): void {
   training = new TrainingService(paths);
 
   // Model linkage: watch the training app's outbox, import into the library.
+  // "Export to Block Coding" is a save into the model library only — the
+  // vision model runs on the AI Eye (P4), never on the S3, so there is no
+  // page jump here. The P4 firmware path is the "Export Model" flow below.
   models = new ModelLibrary(paths.modelsDir);
   const outboxDir = path.join(paths.trainingDataDir, 'blockcoding_outbox');
   exportWatcher = new ExportWatcher(outboxDir, (dir) => {
@@ -219,10 +222,6 @@ function boot(): void {
       'training',
       path.join(dir, 'preprocess.json')
     );
-    // Jump straight to Block Coding — the exported model is ready to use
-    // there (pick it on the model-upload block / burn it via the AI Eye
-    // firmware program).
-    showPage('coding');
   });
   exportWatcher.start();
 
