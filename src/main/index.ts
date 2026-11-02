@@ -219,8 +219,61 @@ function boot(): void {
       'training',
       path.join(dir, 'preprocess.json')
     );
+    // Jump straight to Block Coding — the exported model is ready to use
+    // there (pick it on the model-upload block / burn it via the AI Eye
+    // firmware program).
+    showPage('coding');
   });
   exportWatcher.start();
+
+  // Sign/plate firmware linkage: the training app's /export/run writes the
+  // exported model straight into the TFLite_Car_License sketch folder. When
+  // those files change, jump to Block Coding with the AI Eye firmware
+  // program open (board switched to the ESP32-P4) so the student is one
+  // Compile & Upload away from flashing the new model.
+  const signSketchDir = path.join(path.dirname(paths.mixlyDir), 'TFLite_Car_License');
+  let signExportTimer: NodeJS.Timeout | null = null;
+  const onSignSketchChange = () => {
+    if (signExportTimer) clearTimeout(signExportTimer);
+    signExportTimer = setTimeout(() => {
+      signExportTimer = null;
+      if (!windows) return;
+      showPage('coding');
+      // The coding view may still be loading on first use — retry the hook
+      // until the plugin is there (max ~10 s). The expression reports
+      // whether the hook existed so a not-yet-loaded page retries.
+      let attempts = 0;
+      const tryOpen = () => {
+        if (!windows) return;
+        const result = windows.runOnCodingPage(
+          '!!window.__aioscoutOpenSignFirmware && (window.__aioscoutOpenSignFirmware(), true)'
+        );
+        if (result) {
+          result.then(
+            (opened) => {
+              if (!opened && ++attempts < 20) setTimeout(tryOpen, 500);
+            },
+            () => {
+              if (++attempts < 20) setTimeout(tryOpen, 500);
+            }
+          );
+          return;
+        }
+        if (++attempts < 20) setTimeout(tryOpen, 500);
+      };
+      setTimeout(tryOpen, 800);
+    }, 1200);
+  };
+  if (fs.existsSync(signSketchDir)) {
+    try {
+      fs.watch(signSketchDir, (_event, filename) => {
+        if (!filename) return onSignSketchChange();
+        if (/\.(h|cpp|ino)$/.test(filename)) onSignSketchChange();
+      });
+    } catch (e) {
+      console.error('[linkage] cannot watch sign sketch dir:', e instanceof Error ? e.message : e);
+    }
+  }
 
   registerIpc({
     paths,

@@ -47,6 +47,21 @@ export class WindowManager {
     return this.coding ? this.coding.webContents.getURL() : null;
   }
 
+  /**
+   * JS injection into the block-coding view (the smartcar plugin's globals
+   * live there). Resolves with the expression's value, or null when the
+   * view does not exist / is not ready — callers may retry after
+   * show('coding').
+   */
+  runOnCodingPage(js: string): Promise<unknown> | null {
+    if (!this.coding) return null;
+    try {
+      return this.coding.webContents.executeJavaScript(js, true);
+    } catch {
+      return null;
+    }
+  }
+
   /** Attach (lazily creating + loading) the view for a page. */
   show(page: PageId, url: string | null, settings: AppSettings): void {
     if (!url) return;
