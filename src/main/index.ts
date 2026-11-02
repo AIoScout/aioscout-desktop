@@ -226,12 +226,13 @@ function boot(): void {
   });
   exportWatcher.start();
 
-  // Sign/plate firmware linkage: the training app's /export/run writes the
-  // exported model straight into the TFLite_Car_License sketch folder. When
-  // those files change, jump to Block Coding with the AI Eye firmware
-  // program open (board switched to the ESP32-P4) so the student is one
-  // Compile & Upload away from flashing the new model.
-  const signSketchDir = path.join(path.dirname(paths.mixlyDir), 'TFLite_Car_License');
+  // Sign/plate firmware linkage: the training app's "Export Model"
+  // (/export/run) writes the exported model straight into one of the two
+  // AI Eye sketch folders — TFLite (road-sign image projects) or
+  // TFLite_Car_License (sign_ocr plate projects). When those files change,
+  // jump to Block Coding with the AI Eye firmware program open (board
+  // switched to the ESP32-P4) so the student is one Compile & Upload away
+  // from flashing the new model.
   let signExportTimer: NodeJS.Timeout | null = null;
   const onSignSketchChange = () => {
     if (signExportTimer) clearTimeout(signExportTimer);
@@ -264,14 +265,16 @@ function boot(): void {
       setTimeout(tryOpen, 800);
     }, 1200);
   };
-  if (fs.existsSync(signSketchDir)) {
+  for (const dir of ['TFLite', 'TFLite_Car_License']) {
+    const sketchDir = path.join(path.dirname(paths.mixlyDir), dir);
+    if (!fs.existsSync(sketchDir)) continue;
     try {
-      fs.watch(signSketchDir, (_event, filename) => {
+      fs.watch(sketchDir, (_event, filename) => {
         if (!filename) return onSignSketchChange();
         if (/\.(h|cpp|ino)$/.test(filename)) onSignSketchChange();
       });
     } catch (e) {
-      console.error('[linkage] cannot watch sign sketch dir:', e instanceof Error ? e.message : e);
+      console.error('[linkage] cannot watch sketch dir:', e instanceof Error ? e.message : e);
     }
   }
 
