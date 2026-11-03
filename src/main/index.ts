@@ -344,6 +344,16 @@ async function startServices(): Promise<void> {
 
 app.whenReady().then(boot);
 
+// Dev (npm run dev / Ctrl-C in the terminal): a group SIGINT would otherwise
+// hard-kill Electron before the before-quit chain can stop the sidecars —
+// route it through a clean quit instead. (The `task_policy_set` errors
+// Electron prints while dying are harmless macOS/Chromium noise.)
+if (!app.isPackaged) {
+  process.on('SIGINT', () => {
+    app.quit();
+  });
+}
+
 app.on('window-all-closed', () => {
   app.quit();
 });

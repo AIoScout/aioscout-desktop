@@ -1,3 +1,8 @@
+## What's new in 0.2.4
+
+- **Workshop blocks polish** — plate confirmation by majority vote (3 of 5, mismatch no longer resets), serial monitor fixed at 115200 end to end, board-config sheet renders correctly in light mode, the servo experiment is removed (the demo gate arm is a motor).
+- **Dev exit** — Ctrl-C in dev now quits through the clean shutdown path.
+
 ## What's new in 0.2.3
 
 - **Workshop programs as blocks** — all four workshop programs (road sign, turnstile car, turnstile startup, turnstile plate) are now built from SmartCar blocks: P4 link, line-follow, obstacle wait, left-motor and plate blocks; every template sits in the Open ▾ menu and the road-sign program is the default S3 starter.
