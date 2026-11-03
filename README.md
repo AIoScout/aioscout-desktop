@@ -84,6 +84,10 @@ One-time setup:
 - First app start copies the bundled ~2 GB toolchain into the user data dir
   (once); everything works offline afterwards.
 
+## Downloads & releases
+
+Installers live on the [Releases](https://github.com/AIoScout/aioscout-desktop/releases) page — grab the latest `.dmg` (macOS) or `-setup.exe` (Windows). Per-version changes are summarized on each release and in [`CHANGELOG.md`](CHANGELOG.md).
+
 ## System requirements
 
 | | macOS | Windows |
