@@ -73,7 +73,11 @@ export function resolvePaths(): AppPaths {
     const res = process.resourcesPath;
     paths.mixlyDir = path.join(res, 'mixly');
     paths.trainingDir = path.join(res, 'training');
-    const bin = path.join(paths.trainingDir, process.platform === 'win32' ? 'TFLiteTraining.exe' : 'TFLiteTraining');
+    // PyInstaller onedir layout: the executable sits INSIDE the TFLiteTraining
+    // folder (training/TFLiteTraining/TFLiteTraining(.exe) + _internal next to
+    // it) — spawning the folder path itself fails with EACCES.
+    const exe = process.platform === 'win32' ? 'TFLiteTraining.exe' : 'TFLiteTraining';
+    const bin = path.join(paths.trainingDir, 'TFLiteTraining', exe);
     paths.trainingCommand = { cmd: bin, args: ['--headless'] };
     const cliName = process.platform === 'win32' ? 'arduino-cli.exe' : 'arduino-cli';
     const cliRoot = path.join(res, 'arduino-cli', process.platform, process.arch);
