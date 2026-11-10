@@ -1,6 +1,7 @@
-## What's new in 0.2.5
+## What's new in 0.2.6
 
-- **The packaged app now works** — every installer before this one shipped with both subapps broken: Block Coding lost its bundled dependencies at packaging time, and AI Training failed to launch its backend (it targeted the bundle folder instead of the executable). Both services now start normally after install.
+- **Correct app icon** — the app now carries the actual AIoScout logo. Every earlier installer shipped a wrong placeholder image as the icon.
+- **First working packaged builds** — coming from 0.2.4 or earlier: both subapps failed after install (Block Coding lost its bundled dependencies at packaging time; AI Training failed to launch its backend). Both now start normally.
 - **Workshop templates refresh** — a plate-driven turnstile gate template (the arm swings at startup and again on each confirmed plate) replaces the timed startup demo; the turnstile car beeps twice before its right-turn obstacle bypass; road-sign ultrasonic reads in cm and the right-turn class number is corrected (LEFT=0, STOP=1, RIGHT=2).
 - **Diagnostics** — service spawn errors, exit codes and child output are recorded to the logs folder in user data.
 

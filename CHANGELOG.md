@@ -2,6 +2,10 @@
 
 Brief notes per release. Details live in the commit history; the release page of each version carries its own summary.
 
+## 0.2.6 — 2026-11-10
+
+- Correct app icon: the bundled icon.png was a wrong placeholder image, so every packaged build shipped foreign art as the app icon. Now the actual AIoScout logo (light-theme orange, rasterized from the brand SVG, full 16-1024px icns set); Windows installers pick it up too
+
 ## 0.2.5 — 2026-11-10
 
 - Fixed packaged builds: both subapps failed after install (Block Coding's bundled dependencies were pruned at packaging time; AI Training spawned the PyInstaller bundle folder instead of the executable). All packaged releases up to 0.2.4 were affected
