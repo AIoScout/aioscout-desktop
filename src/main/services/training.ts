@@ -63,8 +63,12 @@ export class TrainingService extends BaseService {
       }
     });
     this.child.stderr?.on('data', (buf: Buffer) => this.logStream?.write(buf.toString()));
-    this.child.on('error', (e) => this.fail(e));
-    this.child.on('exit', () => {
+    this.child.on('error', (e) => {
+      this.logStream?.write(`\n[spawn-error] ${String(e)}\n`);
+      this.fail(e);
+    });
+    this.child.on('exit', (code, signal) => {
+      this.logStream?.write(`\n[exit] code=${code} signal=${signal ?? 'none'}\n`);
       this.child = null;
       this.stopPhaseTimer();
       this.died();

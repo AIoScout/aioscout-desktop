@@ -3,6 +3,7 @@
 // Node via ELECTRON_RUN_AS_NODE, so no separate Node runtime is shipped.
 
 import { fork, type ChildProcess } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { BaseService } from './base';
 import { AppPaths } from '../paths';
@@ -13,6 +14,7 @@ const HEALTH_POLL_MS = 10_000;
 export class MixlyService extends BaseService {
   private child: ChildProcess | null = null;
   private healthTimer: NodeJS.Timeout | null = null;
+  private logStream: fs.WriteStream | null = null;
 
   constructor(private readonly paths: AppPaths) {
     super('mixly');
@@ -24,6 +26,9 @@ export class MixlyService extends BaseService {
 
   protected doStart(): void {
     const serverJs = path.join(this.paths.mixlyDir, 'server.js');
+    const logFile = path.join(this.paths.logsDir, 'mixly.log');
+    this.logStream = fs.createWriteStream(logFile, { flags: 'a' });
+    this.logStream.write(`\n===== ${new Date().toISOString()} fork ${serverJs} =====\n`);
     this.child = fork(serverJs, [], {
       env: {
         ...process.env,
@@ -53,12 +58,19 @@ export class MixlyService extends BaseService {
 
     const forward = (buf: Buffer) => {
       const text = buf.toString().trim();
-      if (text) console.log(`[mixly] ${text}`);
+      if (text) {
+        console.log(`[mixly] ${text}`);
+        this.logStream?.write(text + '\n');
+      }
     };
     this.child.stdout?.on('data', forward);
     this.child.stderr?.on('data', forward);
-    this.child.on('error', (e) => this.fail(e));
-    this.child.on('exit', () => {
+    this.child.on('error', (e) => {
+      this.logStream?.write(`\n[spawn-error] ${String(e)}\n`);
+      this.fail(e);
+    });
+    this.child.on('exit', (code, signal) => {
+      this.logStream?.write(`\n[exit] code=${code} signal=${signal ?? 'none'}\n`);
       this.stopHealthPoll();
       this.child = null;
       this.died();
@@ -91,6 +103,8 @@ export class MixlyService extends BaseService {
 
   protected async killChild(): Promise<void> {
     this.stopHealthPoll();
+    this.logStream?.end();
+    this.logStream = null;
     const child = this.child;
     this.child = null;
     if (!child) return;
