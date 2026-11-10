@@ -1,7 +1,8 @@
-## What's new in 0.2.4
+## What's new in 0.2.5
 
-- **Workshop blocks polish** — plate confirmation by majority vote (3 of 5, mismatch no longer resets), serial monitor fixed at 115200 end to end, board-config sheet renders correctly in light mode, the servo experiment is removed (the demo gate arm is a motor).
-- **Dev exit** — Ctrl-C in dev now quits through the clean shutdown path.
+- **The packaged app now works** — every installer before this one shipped with both subapps broken: Block Coding lost its bundled dependencies at packaging time, and AI Training failed to launch its backend (it targeted the bundle folder instead of the executable). Both services now start normally after install.
+- **Workshop templates refresh** — a plate-driven turnstile gate template (the arm swings at startup and again on each confirmed plate) replaces the timed startup demo; the turnstile car beeps twice before its right-turn obstacle bypass; road-sign ultrasonic reads in cm and the right-turn class number is corrected (LEFT=0, STOP=1, RIGHT=2).
+- **Diagnostics** — service spawn errors, exit codes and child output are recorded to the logs folder in user data.
 
 Full changelog: [`CHANGELOG.md`](https://github.com/AIoScout/aioscout-desktop/blob/main/CHANGELOG.md)
 
@@ -12,6 +13,12 @@ Full changelog: [`CHANGELOG.md`](https://github.com/AIoScout/aioscout-desktop/bl
 | macOS (Apple Silicon) | `AIoScout-*.arm64.dmg` |
 | macOS (Intel) | `AIoScout*-x64.dmg` |
 | Windows | `AIoScout*-setup.exe` |
+
+> **macOS note** — the app is unsigned. After dragging AIoScout.app into /Applications, run this once in Terminal; Gatekeeper otherwise reports the download as "damaged" and refuses to open it:
+>
+> ```
+> xattr -cr /Applications/AIoScout.app
+> ```
 
 ## Licenses
 

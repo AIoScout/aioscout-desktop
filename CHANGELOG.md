@@ -2,6 +2,13 @@
 
 Brief notes per release. Details live in the commit history; the release page of each version carries its own summary.
 
+## 0.2.5 — 2026-11-10
+
+- Fixed packaged builds: both subapps failed after install (Block Coding's bundled dependencies were pruned at packaging time; AI Training spawned the PyInstaller bundle folder instead of the executable). All packaged releases up to 0.2.4 were affected
+- Block Coding templates: plate-driven turnstile gate template replaces the timed startup demo (arm swings on each confirmed plate, 10 s re-arm wait); the turnstile car beeps twice before its right-turn obstacle bypass; each template reports its own load message
+- Road-sign: ultrasonic distance now reads in cm; right-turn class corrected to 2 (P4 mapping LEFT=0, STOP=1, RIGHT=2)
+- Sidecar services log spawn errors, exit codes and child output under userData/logs
+
 ## 0.2.4 — 2026-11-03
 
 - Licence-plate confirmation by majority vote (3 of 5 valid results; mismatch frames no longer reset the count)
