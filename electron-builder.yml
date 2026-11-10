@@ -11,6 +11,11 @@ files:
 extraResources:
   # Populated by scripts/prepare-sidecars.sh + fetch-arduino-cli.sh +
   # build-arduino-bundle.sh — run those before electron-builder.
+  # NOTE: electron-builder (v26) prunes node_modules from extraResources
+  # directory copies even under an explicit filter, which silently broke the
+  # bundled mixly server (require('ws') → MODULE_NOT_FOUND in packaged
+  # builds). afterPack re-copies the production dependency tree; verify a
+  # build by checking Contents/Resources/mixly/node_modules.
   - from: resources/mixly
     to: mixly
   - from: resources/training
@@ -19,6 +24,7 @@ extraResources:
     to: arduino-cli
   - from: resources/Arduino15-seed
     to: Arduino15-seed
+afterPack: scripts/afterpack-mixly-deps.cjs
 # Versionless artifact names: enables permanent "always latest" links like
 #   https://github.com/AIoScout/aioscout-desktop/releases/latest/download/AIoScout-mac-arm64.dmg
 # (the version is visible in the app itself and on the release page).
