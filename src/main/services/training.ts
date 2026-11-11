@@ -37,7 +37,10 @@ export class TrainingService extends BaseService {
     this.child = spawn(cmd, args, {
       env: {
         ...process.env,
-        TFLITE_TRAINING_DATA_DIR: this.paths.trainingDataDir
+        TFLITE_TRAINING_DATA_DIR: this.paths.trainingDataDir,
+        ...(this.paths.firmwareExportRoot
+          ? { AIOSCOUT_FIRMWARE_EXPORT_DIR: this.paths.firmwareExportRoot }
+          : {})
       },
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true

@@ -24,6 +24,8 @@ extraResources:
     to: arduino-cli
   - from: resources/Arduino15-seed
     to: Arduino15-seed
+  - from: resources/ai-eye-firmware
+    to: ai-eye-firmware
 afterPack: scripts/afterpack-mixly-deps.cjs
 # Versionless artifact names: enables permanent "always latest" links like
 #   https://github.com/AIoScout/aioscout-desktop/releases/latest/download/AIoScout-mac-arm64.dmg

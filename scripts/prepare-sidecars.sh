@@ -3,6 +3,8 @@
 #
 #   resources/mixly      — pruned mixly_lite tree (frontend + server + libs + prod deps)
 #   resources/training   — PyInstaller onedir build of the AI training backend
+#   resources/ai-eye-firmware — AI Eye (P4) firmware sketch templates
+#      (TFLite image firmware + TFLite_Car_License plate reader)
 #
 # Cross-platform (macOS / Windows git-bash): uses tar for the tree copy
 # instead of rsync, which is not available on Windows runners.
@@ -71,5 +73,28 @@ fi
 
 cp -R "$AITRAINING/dist/TFLiteTraining" "$TRAIN_OUT/TFLiteTraining"
 
-echo "==> [3/3] done"
-du -sh "$MIXLY_OUT" "$TRAIN_OUT"
+# ── AI Eye firmware sketches ─────────────────────────────────────────────
+# Templates for the P4 burn chain. The desktop app materializes writable
+# copies under userData and points the mixly server / training backend at
+# them, so Export Model + Compile & Upload work out of the box. Source dirs
+# default to the sibling checkouts (the CI workspace uses the same layout);
+# override with AI_EYE_TFLITE_SRC / AI_EYE_SIGN_SRC.
+echo "==> [3/4] preparing AI Eye firmware sketches"
+AI_EYE_OUT="$RES/ai-eye-firmware"
+rm -rf "$AI_EYE_OUT"
+mkdir -p "$AI_EYE_OUT"
+TFLITE_SRC="${AI_EYE_TFLITE_SRC:-$ROOT/../Google-Teachable-Machine-TFLite-model-training/TFLite}"
+SIGN_SRC="${AI_EYE_SIGN_SRC:-$ROOT/../TFLite_Car_License}"
+if [ ! -f "$TFLITE_SRC/TFLite.ino" ]; then
+    echo "    WARNING: image firmware sketch missing at $TFLITE_SRC — AI Eye image burn will be unavailable"
+fi
+if [ ! -f "$SIGN_SRC/TFLite_Sign.ino" ]; then
+    echo "    WARNING: plate reader sketch missing at $SIGN_SRC — AI Eye plate burn will be unavailable"
+fi
+# tar copy (same pattern as the mixly tree) so repo metadata (.git) and
+# stray junk stay out of the package.
+tar -cf - --exclude './.git*' --exclude '* copy.txt' -C "$TFLITE_SRC" . | tar -xf - -C "$AI_EYE_OUT/TFLite"
+tar -cf - --exclude './.git*' --exclude '* copy.txt' -C "$SIGN_SRC" . | tar -xf - -C "$AI_EYE_OUT/TFLite_Car_License"
+
+echo "==> [4/4] done"
+du -sh "$MIXLY_OUT" "$TRAIN_OUT" "$AI_EYE_OUT"

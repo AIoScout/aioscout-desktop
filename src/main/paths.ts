@@ -30,6 +30,13 @@ export interface AppPaths {
   modelsDir: string;
   /** ARDUINO_DIRECTORIES_DATA for the mixly server (set after toolchain seeding). */
   arduinoDataDir: string | null;
+  /** Writable AI Eye image-firmware sketch (TFLite.ino). Packaged only —
+   * dev leaves them null so the mixly server uses its own sibling fallbacks. */
+  imageFirmwareDir: string | null;
+  /** Writable AI Eye plate-reader sketch (TFLite_Sign.ino). Packaged only. */
+  signReaderDir: string | null;
+  /** Root the training app's Export Model defaults to in packaged builds. */
+  firmwareExportRoot: string | null;
 }
 
 function readDevConfig(): DevConfig {
@@ -49,6 +56,29 @@ function readDevConfig(): DevConfig {
   );
 }
 
+/** Copy a bundled resource tree to a writable location, file-by-file, only
+ * where the target file does not exist yet. Returns the target dir, or null
+ * when the template is absent (older packages shipped without it). */
+function materializeTemplate(src: string, dst: string): string | null {
+  if (!fs.existsSync(src)) return null;
+  const copyMissing = (from: string, to: string): void => {
+    fs.mkdirSync(to, { recursive: true });
+    for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
+      const f = path.join(from, entry.name);
+      const t = path.join(to, entry.name);
+      if (entry.isDirectory()) copyMissing(f, t);
+      else if (!fs.existsSync(t)) fs.copyFileSync(f, t);
+    }
+  };
+  try {
+    copyMissing(src, dst);
+  } catch (e) {
+    console.error('[paths] firmware template materialize failed:', e instanceof Error ? e.message : e);
+    return null;
+  }
+  return dst;
+}
+
 function failMissing(p: string, what: string): string {
   throw new Error(`Cannot find ${what}: ${p}. Check dev.config.json (see dev.config.example.json).`);
 }
@@ -66,7 +96,10 @@ export function resolvePaths(): AppPaths {
     trainingDataDir: path.join(dataDir, 'training-data'),
     logsDir: path.join(dataDir, 'logs'),
     modelsDir: path.join(dataDir, 'models'),
-    arduinoDataDir: null
+    arduinoDataDir: null,
+    imageFirmwareDir: null,
+    signReaderDir: null,
+    firmwareExportRoot: null
   };
 
   if (app.isPackaged) {
@@ -79,6 +112,23 @@ export function resolvePaths(): AppPaths {
     const exe = process.platform === 'win32' ? 'TFLiteTraining.exe' : 'TFLiteTraining';
     const bin = path.join(paths.trainingDir, 'TFLiteTraining', exe);
     paths.trainingCommand = { cmd: bin, args: ['--headless'] };
+    // AI Eye firmware burn chain: materialize writable copies of the bundled
+    // sketch templates under userData. The training app's Export Model drops
+    // the baked model files straight into these dirs, and the mixly server
+    // compiles them for the P4 board. Existing files are never overwritten,
+    // so a user's exported models survive reinstalls; only missing template
+    // files are (re)copied.
+    const fwRoot = path.join(dataDir, 'firmware-exports');
+    paths.imageFirmwareDir = materializeTemplate(
+      path.join(res, 'ai-eye-firmware', 'TFLite'),
+      path.join(fwRoot, 'TFLite')
+    );
+    paths.signReaderDir = materializeTemplate(
+      path.join(res, 'ai-eye-firmware', 'TFLite_Car_License'),
+      path.join(fwRoot, 'TFLite_Car_License')
+    );
+    paths.firmwareExportRoot = fwRoot;
+
     const cliName = process.platform === 'win32' ? 'arduino-cli.exe' : 'arduino-cli';
     const cliRoot = path.join(res, 'arduino-cli', process.platform, process.arch);
     if (fs.existsSync(path.join(cliRoot, cliName))) {

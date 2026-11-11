@@ -43,7 +43,13 @@ export class MixlyService extends BaseService {
           ? { ARDUINO_DIRECTORIES_DATA: this.paths.arduinoDataDir }
           : {}),
         P4_IMX219_LIB: path.join(this.paths.mixlyDir, 'ESP32-P4-IMX219-PoC'),
-        AIOSCOUT_MODEL_LIBRARY: this.paths.modelsDir
+        AIOSCOUT_MODEL_LIBRARY: this.paths.modelsDir,
+        ...(this.paths.imageFirmwareDir
+          ? { AIOSCOUT_IMAGE_FIRMWARE_DIR: this.paths.imageFirmwareDir }
+          : {}),
+        ...(this.paths.signReaderDir
+          ? { AIOSCOUT_SIGNREADER_DIR: this.paths.signReaderDir }
+          : {})
       },
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       cwd: this.paths.mixlyDir

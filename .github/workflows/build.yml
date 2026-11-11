@@ -111,6 +111,25 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
           python -m PyInstaller --clean --noconfirm TFLiteTraining.spec
 
+      - name: Checkout AI Eye image firmware sketch
+        uses: actions/checkout@v4
+        with:
+          repository: AIoScout/Google-Teachable-Machine-TFLite-model-training
+          ref: main
+          path: Google-Teachable-Machine-TFLite-model-training
+          token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+          sparse-checkout: cone
+          sparse-checkout-patterns: |
+            /TFLite
+
+      - name: Checkout AI Eye plate reader sketch
+        uses: actions/checkout@v4
+        with:
+          repository: koilkl/TFLite_Car_License
+          ref: main
+          path: TFLite_Car_License
+          token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+
       - name: Prepare sidecar resources
         working-directory: aioscout-desktop
         shell: bash
