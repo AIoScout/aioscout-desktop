@@ -2,6 +2,14 @@
 
 Brief notes per release. Details live in the commit history; the release page of each version carries its own summary.
 
+## 0.2.7 — 2026-11-11
+
+- AI Eye (P4) firmware burn works in packaged builds for the first time: the firmware sketches ship with the app (writable copies materialize under user data) and both training-app exports default into them — previously the whole chain only worked from a dev checkout
+- Fixed packaging that stripped all 45 bundled libraries from the esp32p4 custom core (a bsdtar exclude matched at every depth), which broke P4 compiles at #include <SD_MMC.h>
+- Export flow: models save into the library directly (no interactive dialog), the training app confirms, and ~2 s later the app jumps to Block Coding with the AI Eye firmware program open
+- Output console and serial monitor wrap long lines instead of scrolling sideways
+- Packaged builds now watch the firmware-export dirs (the auto-jump previously watched a dev-only path and never fired)
+
 ## 0.2.6 — 2026-11-10
 
 - Correct app icon: the bundled icon.png was a wrong placeholder image, so every packaged build shipped foreign art as the app icon. Now the actual AIoScout logo (light-theme orange, rasterized from the brand SVG, full 16-1024px icns set); Windows installers pick it up too

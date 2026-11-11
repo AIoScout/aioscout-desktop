@@ -1,9 +1,8 @@
-## What's new in 0.2.6
+## What's new in 0.2.7
 
-- **Correct app icon** — the app now carries the actual AIoScout logo. Every earlier installer shipped a wrong placeholder image as the icon.
-- **First working packaged builds** — coming from 0.2.4 or earlier: both subapps failed after install (Block Coding lost its bundled dependencies at packaging time; AI Training failed to launch its backend). Both now start normally.
-- **Workshop templates refresh** — a plate-driven turnstile gate template (the arm swings at startup and again on each confirmed plate) replaces the timed startup demo; the turnstile car beeps twice before its right-turn obstacle bypass; road-sign ultrasonic reads in cm and the right-turn class number is corrected (LEFT=0, STOP=1, RIGHT=2).
-- **Diagnostics** — service spawn errors, exit codes and child output are recorded to the logs folder in user data.
+- **AI Eye firmware burn, out of the box** — flashing a trained model to the AI Eye (P4) board now works in the installed app: the firmware sketches ship inside it, "Export" bakes your model straight into them, and Compile & Upload builds with the bundled toolchain. This whole flow previously required a developer checkout.
+- **Smoother export** — exporting a model saves it immediately, the training app confirms, and a moment later Block Coding opens with the AI Eye firmware program ready for Compile & Upload.
+- **Readable consoles** — the output console and serial monitor wrap long lines instead of scrolling sideways.
 
 Full changelog: [`CHANGELOG.md`](https://github.com/AIoScout/aioscout-desktop/blob/main/CHANGELOG.md)
 
