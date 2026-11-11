@@ -207,10 +207,10 @@ function boot(): void {
   mixly = new MixlyService(paths);
   training = new TrainingService(paths);
 
-  // Model linkage: watch the training app's outbox, import into the library.
-  // "Export to Block Coding" is a save into the model library only — the
-  // vision model runs on the AI Eye (P4), never on the S3, so there is no
-  // page jump here. The P4 firmware path is the "Export Model" flow below.
+  // Model linkage: watch the training app's outbox, import into the library,
+  // then jump to Block Coding with the AI Eye firmware program open — the
+  // vision model runs on the AI Eye (P4), so the export destination is the
+  // firmware build, and the student is one Compile & Upload away from it.
   models = new ModelLibrary(paths.modelsDir);
   const outboxDir = path.join(paths.trainingDataDir, 'blockcoding_outbox');
   exportWatcher = new ExportWatcher(outboxDir, (dir) => {
@@ -222,6 +222,7 @@ function boot(): void {
       'training',
       path.join(dir, 'preprocess.json')
     );
+    jumpToSignFirmware(2000);
   });
   exportWatcher.start();
 
@@ -232,11 +233,8 @@ function boot(): void {
   // jump to Block Coding with the AI Eye firmware program open (board
   // switched to the ESP32-P4) so the student is one Compile & Upload away
   // from flashing the new model.
-  let signExportTimer: NodeJS.Timeout | null = null;
-  const onSignSketchChange = () => {
-    if (signExportTimer) clearTimeout(signExportTimer);
-    signExportTimer = setTimeout(() => {
-      signExportTimer = null;
+  const jumpToSignFirmware = (delayMs: number): void => {
+    setTimeout(() => {
       if (!windows) return;
       showPage('coding');
       // The coding view may still be loading on first use — retry the hook
@@ -262,10 +260,27 @@ function boot(): void {
         if (++attempts < 20) setTimeout(tryOpen, 500);
       };
       setTimeout(tryOpen, 800);
+    }, delayMs);
+  };
+
+  let signExportTimer: NodeJS.Timeout | null = null;
+  const onSignSketchChange = () => {
+    if (signExportTimer) clearTimeout(signExportTimer);
+    signExportTimer = setTimeout(() => {
+      signExportTimer = null;
+      jumpToSignFirmware(0);
     }, 1200);
   };
-  for (const dir of ['TFLite', 'TFLite_Car_License']) {
-    const sketchDir = path.join(path.dirname(paths.mixlyDir), dir);
+  // Dev watches the sibling sketch checkouts; packaged builds watch the
+  // writable firmware-exports copies the training app exports into.
+  const mixlyDir = paths.mixlyDir;
+  const sketchWatchDirs = [
+    paths.imageFirmwareDir,
+    paths.signReaderDir,
+    ...(['TFLite', 'TFLite_Car_License'] as const)
+      .map((dir) => path.join(path.dirname(mixlyDir), dir))
+  ].filter((d): d is string => Boolean(d));
+  for (const sketchDir of new Set(sketchWatchDirs)) {
     if (!fs.existsSync(sketchDir)) continue;
     try {
       fs.watch(sketchDir, (_event, filename) => {
