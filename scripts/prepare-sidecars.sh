@@ -12,7 +12,7 @@
 # Usage: scripts/prepare-sidecars.sh [mixly_dir] [aitraining_dir]
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname $0)/.." && pwd)"
 MIXLY="${1:-$ROOT/../mixly_lite}"
 AITRAINING="${2:-$ROOT/../Google-Teachable-Machine-TFLite-model-training/AItraining}"
 
@@ -20,7 +20,7 @@ RES="$ROOT/resources"
 echo "==> resources root: $RES"
 
 # ── mixly ────────────────────────────────────────────────────────────────
-echo "==> [1/3] preparing mixly tree from $MIXLY"
+echo "==> [1/4] preparing mixly tree from $MIXLY"
 MIXLY_OUT="$RES/mixly"
 rm -rf "$MIXLY_OUT"
 mkdir -p "$MIXLY_OUT"
@@ -32,28 +32,34 @@ if [ ! -f "$MIXLY/boards/default/arduino_esp32/main.bundle.js" ]; then
   (cd "$MIXLY" && { [ -d node_modules ] || npm ci --no-audit --no-fund; } && npm run deps && npm run build:boards:arduino)
 fi
 
-# tar-based copy with excludes (bsdtar on macOS and Windows both support this)
+# tar-based copy. IMPORTANT: bsdtar --exclude patterns match at EVERY depth
+# ('./libraries' also dropped .arduino-user/…/libraries, which removed the
+# P4 compile core's bundled libraries from every packaged build), so the tar
+# only excludes things we never want at any depth; the structural prunes
+# below remove top-level dirs by explicit path instead.
 tar -cf - \
   --exclude './.git*' \
   --exclude './node_modules' \
-  --exclude './boards/default_src' \
-  --exclude './boards/extend' \
-  --exclude './boards/HDK' \
-  --exclude './boards/default/micropython_*' \
-  --exclude './boards/default/python_*' \
-  --exclude './boards/default/arduino_avr' \
-  --exclude './boards/default/arduino_esp8266' \
-  --exclude './boards/default/arduino' \
-  --exclude './.build_output' \
-  --exclude './sketch_build' \
-  --exclude './libraries' \
-  --exclude './.model_uploads' \
-  --exclude './static-server' \
-  --exclude './scripts' \
-  --exclude './.github' \
-  --exclude './.claude' \
   --exclude '*.log' \
   -C "$MIXLY" . | tar -xf - -C "$MIXLY_OUT"
+
+rm -rf \
+  "$MIXLY_OUT/boards/default_src" \
+  "$MIXLY_OUT/boards/extend" \
+  "$MIXLY_OUT/boards/HDK" \
+  "$MIXLY_OUT/boards/default/micropython_"* \
+  "$MIXLY_OUT/boards/default/python_"* \
+  "$MIXLY_OUT/boards/default/arduino_avr" \
+  "$MIXLY_OUT/boards/default/arduino_esp8266" \
+  "$MIXLY_OUT/boards/default/arduino" \
+  "$MIXLY_OUT/.build_output" \
+  "$MIXLY_OUT/sketch_build" \
+  "$MIXLY_OUT/libraries" \
+  "$MIXLY_OUT/.model_uploads" \
+  "$MIXLY_OUT/static-server" \
+  "$MIXLY_OUT/scripts" \
+  "$MIXLY_OUT/.github" \
+  "$MIXLY_OUT/.claude"
 
 echo "    installing production dependencies"
 (cd "$MIXLY_OUT" && npm install --omit=dev --no-audit --no-fund --ignore-scripts)
@@ -61,7 +67,7 @@ echo "    installing production dependencies"
 (cd "$MIXLY_OUT" && npm approve-scripts --allow-scripts-pending 2>/dev/null || true)
 
 # ── training backend ─────────────────────────────────────────────────────
-echo "==> [2/3] preparing training backend from $AITRAINING"
+echo "==> [2/4] preparing training backend from $AITRAINING"
 TRAIN_OUT="$RES/training"
 rm -rf "$TRAIN_OUT"
 mkdir -p "$TRAIN_OUT"
@@ -82,7 +88,7 @@ cp -R "$AITRAINING/dist/TFLiteTraining" "$TRAIN_OUT/TFLiteTraining"
 echo "==> [3/4] preparing AI Eye firmware sketches"
 AI_EYE_OUT="$RES/ai-eye-firmware"
 rm -rf "$AI_EYE_OUT"
-mkdir -p "$AI_EYE_OUT"
+mkdir -p "$AI_EYE_OUT/TFLite" "$AI_EYE_OUT/TFLite_Car_License"
 TFLITE_SRC="${AI_EYE_TFLITE_SRC:-$ROOT/../Google-Teachable-Machine-TFLite-model-training/TFLite}"
 SIGN_SRC="${AI_EYE_SIGN_SRC:-$ROOT/../TFLite_Car_License}"
 if [ ! -f "$TFLITE_SRC/TFLite.ino" ]; then
