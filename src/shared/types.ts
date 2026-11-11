@@ -66,6 +66,7 @@ export const IPC = {
   ServicesRestart: 'services:restart',
   NavShow: 'nav:show',
   NavSetContentBounds: 'nav:setContentBounds',
+  NavSetReservedRight: 'nav:setReservedRight',
   SettingsGet: 'settings:get',
   SettingsSet: 'settings:set',
   AppOpenLogs: 'app:openLogs',

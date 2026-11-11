@@ -284,7 +284,8 @@ function boot(): void {
     models,
     getWindow: () => windows?.main ?? null,
     showPage,
-    setContentBounds: (rect) => windows?.setContentBounds(rect)
+    setContentBounds: (rect) => windows?.setContentBounds(rect),
+    setReservedRight: (cssPx) => windows?.setReservedRight(cssPx)
   });
 
   // The renderer loads the shell immediately (it is also the splash screen).

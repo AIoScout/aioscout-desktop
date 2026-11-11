@@ -20,6 +20,7 @@ interface IpcDeps {
   getWindow: () => BrowserWindow | null;
   showPage: (page: PageId) => void;
   setContentBounds: (rect: Rect) => void;
+  setReservedRight: (cssPx: number) => void;
 }
 
 export function registerIpc(deps: IpcDeps): void {
@@ -46,6 +47,10 @@ export function registerIpc(deps: IpcDeps): void {
 
   ipcMain.handle(IPC.NavSetContentBounds, (_e, rect: Rect) => {
     deps.setContentBounds(rect);
+    return true;
+  });
+  ipcMain.handle(IPC.NavSetReservedRight, (_e, cssPx: number) => {
+    deps.setReservedRight(cssPx);
     return true;
   });
 

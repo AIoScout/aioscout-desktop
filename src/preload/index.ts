@@ -16,6 +16,9 @@ const api = {
     },
     setContentBounds(rect: Rect): Promise<boolean> {
       return ipcRenderer.invoke(IPC.NavSetContentBounds, rect);
+    },
+    setReservedRight(cssPx: number): Promise<boolean> {
+      return ipcRenderer.invoke(IPC.NavSetReservedRight, cssPx);
     }
   },
   settings: {

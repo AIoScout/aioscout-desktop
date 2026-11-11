@@ -122,9 +122,14 @@ document.getElementById('btn-model-open-coding').addEventListener('click', async
   switchPage('coding');
 });
 
+// The toast region lives under the native subapp views — tell the main
+// process to shrink the active view's right edge while the toast is up.
+const TOAST_RESERVE_PX = 356;
+
 function hideToast() {
   toastModelId = null;
   toastEl.hidden = true;
+  window.aioscout.nav.setReservedRight(0);
 }
 
 window.aioscout.on.modelsChanged((e) => {
@@ -132,6 +137,7 @@ window.aioscout.on.modelsChanged((e) => {
   toastModelId = e.model.id;
   toastName.value = e.model.name;
   toastEl.hidden = false;
+  window.aioscout.nav.setReservedRight(TOAST_RESERVE_PX);
 });
 
 // ── Bounds reporting ─────────────────────────────────────────
