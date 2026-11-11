@@ -16,11 +16,6 @@ export class WindowManager {
   private training: WebContentsView | null = null;
   private active: PageId | null = null;
   private bounds: Rect = { x: 0, y: 0, width: 0, height: 0 };
-  /** Right-edge strip (CSS px) the renderer reserves for in-page overlays
-   * (model toast). Native WebContentsViews composite above ALL page content,
-   * so the only way an in-page toast can be seen next to a live subapp view
-   * is to shrink the view. 0 = no reservation. */
-  private reservedRight = 0;
 
   constructor() {
     this.main = new BrowserWindow({
@@ -166,15 +161,6 @@ export class WindowManager {
     if (active) this.applyBounds(active);
   }
 
-  /** Renderer shows/hides a right-edge in-page overlay (model toast): grow
-   * or shrink the active view's right edge accordingly. CSS px in, so it
-   * scales with the shell's zoom like every other reported rect. */
-  setReservedRight(cssPx: number): void {
-    this.reservedRight = Math.max(0, Number(cssPx) || 0);
-    const active = this.active === 'coding' ? this.coding : this.training;
-    if (active) this.applyBounds(active);
-  }
-
   /** Zoom the shell and both subpage views together (single canvas feel). */
   setZoomFactorAll(factor: number): void {
     const contents = [this.main.webContents, this.coding?.webContents, this.training?.webContents];
@@ -198,18 +184,10 @@ export class WindowManager {
   private applyBounds(view: WebContentsView): void {
     const { x, y, width, height } = this.bounds;
     if (width <= 0 || height <= 0) return;
-    let reserved = 0;
-    if (this.reservedRight > 0) {
-      try {
-        reserved = this.reservedRight * (this.main.webContents.getZoomFactor() || 1);
-      } catch {
-        reserved = this.reservedRight;
-      }
-    }
     view.setBounds({
       x: Math.round(x),
       y: Math.round(y),
-      width: Math.round(Math.max(0, width - reserved)),
+      width: Math.round(width),
       height: Math.round(height)
     });
   }
